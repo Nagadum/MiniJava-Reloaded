@@ -1,0 +1,6 @@
+Main.cmo: ../Typing/Typing.cmi ../Typing/TypeError.cmi ../Parsing/Parser.cmi \
+    ../Utils/Location.cmi ../Parsing/Lexer.cmo ../Runtime/Eval.cmo \
+    ../Parsing/Error.cmo ../Parsing/AST.cmo
+Main.cmx: ../Typing/Typing.cmx ../Typing/TypeError.cmx ../Parsing/Parser.cmx \
+    ../Utils/Location.cmx ../Parsing/Lexer.cmx ../Runtime/Eval.cmx \
+    ../Parsing/Error.cmx ../Parsing/AST.cmx

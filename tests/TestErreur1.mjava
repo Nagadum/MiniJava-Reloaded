@@ -1,0 +1,21 @@
+class A {
+  Int a = 1;
+  Int b;
+
+  Int m(A a) { 2 }
+
+  A n() { new A }
+
+  Int m2(A a,A b) { 
+    Int a = 1 in {
+      a = 3;
+      Int i = (new String).toInt() in {
+        Object o = (new Object).clone() in {
+	  a = new A;
+	  a.m("a","b","c")
+	}
+      }
+    }
+  }
+
+

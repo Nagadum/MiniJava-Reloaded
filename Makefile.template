@@ -1,0 +1,55 @@
+OCAMLC= ocamlc
+OCAMLDEP= ocamldep
+OCAMLYACC= ocamlyacc
+OCAMLLEX= ocamllex
+
+RM= rm -f
+
+TMPL_ML_SRC   = $(filter %.ml, $(SOURCES))
+TMPL_MLI_SRC  = $(filter %.mli, $(SOURCES))
+TMPL_YACC_SRC = $(filter %.mly, $(SOURCES))
+TMPL_LEX_SRC  = $(filter %.mll, $(SOURCES))
+
+TMPL_MLI_ML   = $(patsubst %.mly, %.ml, $(TMPL_YACC_SRC))      \
+		$(patsubst %.mly, %.mli, $(TMPL_YACC_SRC))     \
+		$(patsubst %.mll, %.ml, $(TMPL_LEX_SRC))
+
+TMPL_SRC      = $(TMPL_ML_SRC) $(TMPL_MLI_ML) $(TMPL_MLI_SRC)
+TMPL_OBJECTS  = $(patsubst %.ml,   %.cmo, $(TMPL_ML_SRC))      \
+		$(patsubst %.mly,  %.cmo, $(TMPL_YACC_SRC))    \
+		$(patsubst %.mll,  %.cmo, $(TMPL_LEX_SRC))
+
+
+TMPL_INCLUDES  =$(patsubst %, -I %, $(DIRS))
+TMPL_COMPFLAGS =-dtypes $(COMPFLAGS) $(TMPL_INCLUDES)
+
+
+all: $(TMPL_OBJECTS)
+
+.SUFFIXES: .mli .cmi .ml .cmo .mll .mly
+
+%.cmi: %.mli
+#	@echo compiling $<
+	$(OCAMLC) $(TMPL_COMPFLAGS) -c $<
+
+%.cmo: %.ml
+#	@echo compiling $<
+	$(OCAMLC) $(TMPL_COMPFLAGS) -c $<
+
+%.ml: %.mll
+	$(OCAMLLEX) $<
+
+%.ml %.mli: %.mly
+	$(OCAMLYACC) $<
+
+clean:
+	@$(RM) *.cm[ixo] *~ *# *.o *.flc *.~* *.annot
+
+clean-all: clean
+	@$(RM) .depend* $(TMPL_MLI_ML)
+
+depend: $(TMPL_MLI_ML)
+	@$(OCAMLDEP) $(TMPL_INCLUDES) $(TMPL_SRC) > .depend
+
+
+-include .depend

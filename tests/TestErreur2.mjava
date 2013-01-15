@@ -1,0 +1,18 @@
+class A[ {
+  Int a = 1;
+  Int b;
+
+  Int m(A a) { }
+
+  Int m2(A a,A b) { 
+    Int a;
+    Int a = 1;
+    a = 3;
+    Int i = (new String()).toInt();
+    Object o = (new Object()).clone();
+    A a;
+    a = new A(1,2,3,4,5);
+    a.m("a","b","c");
+  }
+
+main:

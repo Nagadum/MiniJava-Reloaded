@@ -1,0 +1,27 @@
+class A {
+  Int a = 1;
+  Int b;
+
+  Int m(A a) { 2 }
+
+  A n() { new A }
+
+  Int m2(A a,A b) { 
+    Int a = 1 in {
+      a = 3;
+      Int i = (new String).toInt() in {
+        Object o = (new Object).clone() in {
+	  A una = new A in {
+	    una.m(una)
+	  }
+	}
+      }
+    }
+  }
+
+}
+
+class B extends A {
+  A a1;
+  A a2 = null;
+}
