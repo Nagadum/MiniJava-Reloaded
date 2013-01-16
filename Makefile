@@ -55,12 +55,12 @@ depend:
 
 
 # directories to go in (they must be in the good dependency order!!)
-DIRS = Utils Parsing Typing Runtime Main 
+DIRS = Utils Parsing Typing Compilation Runtime Main 
 
 # -I directives for linkage
 INCS = $(patsubst %,-I %, $(DIRS))
 
 # object files needed for linkage
 OBJS = Location.cmo Error.cmo TypeError.cmo Type.cmo AST.cmo Parser.cmo Lexer.cmo \
-	Env.cmo Typing.cmo RunEnv.cmo Eval.cmo Main.cmo
+	Env.cmo Typing.cmo TypeEnv.cmo Eval.cmo Main.cmo
 

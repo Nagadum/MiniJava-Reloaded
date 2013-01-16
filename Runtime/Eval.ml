@@ -1,6 +1,6 @@
 open AST
 open Env
-open RunEnv
+open TypeEnv
 
 let rec eval_expr e env =
   match e.edesc with
@@ -9,7 +9,7 @@ let rec eval_expr e env =
 	| _ -> Null
       end
     | Define (varname, vartype, varvalue, e) -> 
-	let newenv = RunEnv.defineVar env varname (eval_expr varvalue env) in
+	let newenv = TypeEnv.defineVar env varname (eval_expr varvalue env) in
 	  eval_expr e newenv
     | Var v -> (findVar env)  v
     | Val v -> begin match v with 	

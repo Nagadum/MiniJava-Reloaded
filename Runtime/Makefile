@@ -1,7 +1,7 @@
 
-SOURCES= RunEnv.ml Eval.ml
+SOURCES= Eval.ml
 
-DIRS=../Utils ../Parsing ../Typing
+DIRS=../Utils ../Parsing ../Typing ../Compilation
 
 COMPFLAGS=
 

@@ -1,5 +1,5 @@
 
-SOURCES= 
+SOURCES= TypeEnv.ml
 
 DIRS=../Utils ../Parsing ../Typing
 

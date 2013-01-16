@@ -1,7 +1,7 @@
 open Typing
 open List
 open Eval
-open RunEnv
+open TypeEnv
 
 let get_file str =
   let temp2 = Filename.check_suffix str ".mjava" in
@@ -30,7 +30,7 @@ let compile str =
       print_endline "successfull parsing";
       AST.print_program t;
       match t with
-	| (cl,Some eo) -> print_endline (AST.string_of_value (Eval.eval_expr eo (initialEnv())))
+	| (cl,Some eo) -> print_endline (AST.string_of_value (Eval.eval_expr eo (TypeEnv.initialEnv())))
 	| _ -> ()
     with Parsing.Parse_error ->
       close_in (input_file);
