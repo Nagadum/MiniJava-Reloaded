@@ -1,6 +1,7 @@
 open Typing
 open List
 open Eval
+open Env
 open TypeEnv
 
 let get_file str =
@@ -24,14 +25,18 @@ let compile str =
     let input_file = open_in file in
     let lexbuf = Lexing.from_channel input_file in
     Location.init lexbuf file;
-    print_endline "opening file";
+    print_endline "----------Parsing-----------";
     try 
       let t = Parser.start Lexer.token lexbuf in
-      print_endline "successfull parsing";
       AST.print_program t;
+      print_endline "----------Typing------------";
+      Typing.type_program t;
       match t with
-	| (cl,Some eo) -> print_endline (AST.string_of_value (Eval.eval_expr eo (TypeEnv.initialEnv())))
-	| _ -> ()
+	| (cl,Some eo) -> 
+	  print_endline "--------Evaluating----------";
+	  print_endline (AST.string_of_value (Eval.eval_expr eo (TypeEnv.initialEnv())))
+	| _ ->
+	  print_endline "--------No Evaluation----------";
     with Parsing.Parse_error ->
       close_in (input_file);
       print_string "Syntax error: ";
