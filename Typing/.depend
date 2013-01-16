@@ -1,8 +1,0 @@
-Type.cmo: Type.cmi
-Type.cmx: Type.cmi
-Env.cmo: Type.cmi Env.cmi
-Env.cmx: Type.cmx Env.cmi
-TypeError.cmo: ../Utils/Location.cmi TypeError.cmi
-TypeError.cmx: ../Utils/Location.cmx TypeError.cmi
-Typing.cmo: TypeError.cmi ../Parsing/AST.cmo Typing.cmi
-Typing.cmx: TypeError.cmx ../Parsing/AST.cmx Typing.cmi

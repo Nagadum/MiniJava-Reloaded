@@ -8,3 +8,9 @@
 *.cmxs
 *.cmxa
 *~
+*.depend
+minijavac
+Parsing/Lexer.ml
+Parsing/Parser.ml
+Parsing/Parser.mli
+

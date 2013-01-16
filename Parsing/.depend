@@ -1,9 +1,0 @@
-Error.cmo: ../Utils/Location.cmi
-Error.cmx: ../Utils/Location.cmx
-AST.cmo: ../Typing/Type.cmi ../Utils/Location.cmi
-AST.cmx: ../Typing/Type.cmx ../Utils/Location.cmx
-Parser.cmo: ../Utils/Location.cmi Error.cmo AST.cmo Parser.cmi
-Parser.cmx: ../Utils/Location.cmx Error.cmx AST.cmx Parser.cmi
-Parser.cmi: AST.cmo
-Lexer.cmo: Parser.cmi ../Utils/Location.cmi Error.cmo
-Lexer.cmx: Parser.cmx ../Utils/Location.cmx Error.cmx

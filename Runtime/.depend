@@ -1,4 +1,0 @@
-Values.cmo:
-Values.cmx:
-Eval.cmo: ../Typing/Env.cmi ../Parsing/AST.cmo
-Eval.cmx: ../Typing/Env.cmx ../Parsing/AST.cmx
