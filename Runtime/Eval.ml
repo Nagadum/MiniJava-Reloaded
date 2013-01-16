@@ -21,7 +21,7 @@ let rec eval_expr e env =
 	| _ -> Null
       end
     | Define (varname, vartype, varvalue, e) -> 
-	let newenv = TypeEnv.defineVar env varname (eval_expr varvalue env) in
+	let newenv = TypeEnv.addVar env varname (eval_expr varvalue env) in
 	  eval_expr e newenv
     | Var v -> (findVar env)  v
     | Val v -> begin match v with 	

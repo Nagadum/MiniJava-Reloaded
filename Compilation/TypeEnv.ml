@@ -1,11 +1,17 @@
-type tEnv_v = (string, AST.value) Hashtbl.t
+type tEnv_t = (int, tObject) Hashtbl.t 
+
+and tEnv_c = (string, tClasse) Hashtbl.t
+
+and tEnv_v = (string, AST.value) Hashtbl.t
+
+and tEnv_f = (fun_id, tFunction) Hashtbl.t
 
 and tEnv = {
 
-    env_t :  ( int * tObject ) list ;
-    env_c : ( string * tClasse ) list;
+    env_t : tEnv_t ;
+    env_c : tEnv_c ;
     env_v : tEnv_v ;
-    env_f : ( fun_id * tFunction ) list
+    env_f : tEnv_f ;
 
 }
 
@@ -41,11 +47,32 @@ let makeEnv e_t e_c e_v e_f = {
 }
 
 let initialEnv () = 
-  makeEnv [] [] (Hashtbl.create 17 : tEnv_v) []
+  makeEnv (Hashtbl.create 17 : tEnv_t) (Hashtbl.create 17 : tEnv_c) (Hashtbl.create 17 : tEnv_v) (Hashtbl.create 17 : tEnv_f)
+
+let findObj env = Hashtbl.find (env.env_t)
+
+let findClass env = Hashtbl.find (env.env_c)
 
 let findVar env = Hashtbl.find (env.env_v)
 
-let defineVar env n t = 
+let findFun env = Hashtbl.find (env.env_f)
+
+let addObj env n t = 
+  let new_t = Hashtbl.copy (env.env_t) in
+    Hashtbl.add new_t n t; 
+    makeEnv new_t env.env_c env.env_v env.env_f
+
+let addClass env n t = 
+  let new_c = Hashtbl.copy (env.env_c) in
+    Hashtbl.add new_c n t; 
+    makeEnv env.env_t new_c env.env_v env.env_f
+
+let addVar env n t = 
   let new_v = Hashtbl.copy (env.env_v) in
     Hashtbl.add new_v n t; 
     makeEnv env.env_t env.env_c new_v env.env_f
+
+let addFun env n t = 
+  let new_f = Hashtbl.copy (env.env_f) in
+    Hashtbl.add new_f n t; 
+    makeEnv env.env_t env.env_c env.env_v new_f
