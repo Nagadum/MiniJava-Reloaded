@@ -7,6 +7,18 @@ let rec eval_expr e env =
     | Call(e1, "add", e2::_) ->  begin match ((eval_expr e1 env), (eval_expr e2 env)) with
 	| (Int a, Int b) -> Int(a+b)
 	| _ -> Null
+    end
+    | Call(e1, "sub", e2::_) ->  begin match ((eval_expr e1 env), (eval_expr e2 env)) with
+	| (Int a, Int b) -> Int(a-b)
+	| _ -> Null
+      end
+    | Call(e1, "mul", e2::_) ->  begin match ((eval_expr e1 env), (eval_expr e2 env)) with
+	| (Int a, Int b) -> Int(a*b)
+	| _ -> Null
+    end
+    | Call(e1, "div", e2::_) ->  begin match ((eval_expr e1 env), (eval_expr e2 env)) with
+	| (Int a, Int b) -> Int(a/b)
+	| _ -> Null
       end
     | Define (varname, vartype, varvalue, e) -> 
 	let newenv = TypeEnv.defineVar env varname (eval_expr varvalue env) in
