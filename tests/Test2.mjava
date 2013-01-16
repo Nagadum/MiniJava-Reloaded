@@ -1,5 +1,5 @@
 Int a = 2+5 in {
     Int b = a + 8 in {
-    	a + b
+    	a - b * 2 / 2
 	}
 }
