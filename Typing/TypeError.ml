@@ -9,6 +9,7 @@ type t =
   | Toomuchargs
   | Notenoughargs
   | IncorrectType of string * string
+  | Unknownvar of string
 
 exception Error of t * Location.t
 
@@ -34,6 +35,8 @@ let report_error = function
       print_string "Not enough arguments: "
   | IncorrectType(t1,t2) ->
       print_string ("Expected " ^ t1 ^ " ,found " ^ t2 ^": ")
+  | Unknownvar a ->
+      print_string ("Unknown variable " ^ a)
 
 let not_subtype t1 t2 loc =
   raise (Error(Notsubtype(t1,t2),loc))
@@ -64,4 +67,7 @@ let not_enough_args loc =
 
 let incorrect_type t1 t2 loc =
   raise (Error(IncorrectType(t1,t2), loc))
+
+let unknown_var a loc =
+  raise (Error(Unknownvar a,loc))
 
