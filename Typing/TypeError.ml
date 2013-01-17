@@ -8,6 +8,7 @@ type t =
   | Inheritancecycle of string * string
   | Toomuchargs
   | Notenoughargs
+  | IncorrectType of string * string
 
 exception Error of t * Location.t
 
@@ -31,6 +32,8 @@ let report_error = function
       print_string "Too much arguments: "
   | Notenoughargs ->
       print_string "Not enough arguments: "
+  | IncorrectType(t1,t2) ->
+      print_string ("Expected " ^ t1 ^ " ,found " ^ t2 ^": ")
 
 let not_subtype t1 t2 loc =
   raise (Error(Notsubtype(t1,t2),loc))
@@ -58,4 +61,7 @@ let too_much_args loc =
 
 let not_enough_args loc =
   raise (Error(Notenoughargs, loc))
+
+let incorrect_type t1 t2 loc =
+  raise (Error(IncorrectType(t1,t2), loc))
 

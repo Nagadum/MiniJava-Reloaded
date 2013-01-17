@@ -12,3 +12,4 @@ val unknown_meth : string -> string -> Location.t -> 'a
 val inheritance_cycle : string -> string -> Location.t -> 'a
 val too_much_args : Location.t -> 'a
 val not_enough_args : Location.t -> 'a
+val incorrect_type : string -> string -> Location.t -> 'a
