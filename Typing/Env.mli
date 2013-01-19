@@ -9,5 +9,6 @@ val initialEnv : unit -> tEnv
 val findVar : tEnv -> string -> Type.t
 val isClass : tEnv -> string -> bool
 val findClass : tEnv -> string -> tClasse
+val findFun : tEnv -> string -> string -> Type.t list
 val addVar : tEnv -> string -> Type.t -> tEnv
 val addClass : tEnv -> string -> tEnv

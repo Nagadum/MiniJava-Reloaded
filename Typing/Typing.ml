@@ -21,7 +21,24 @@ let rec isSubtypeOf env t_p t_c =
       isSubtypeOf env t_p (getSuper t_cs)
     end
 
-let rec check_expr e env =
+let rec check_expr_list loc lex lt env =
+  match (lex, lt) with
+    | ([], []) -> ()
+    | ([], l) -> not_enough_args loc
+    | (l, []) -> too_much_args loc
+    | (e::l1, t::l2) -> 
+      check_expr e env;
+      match e.etype with
+	| Some te ->
+	  if ( isSubtypeOf env t te )
+	  then check_expr_list loc l1 l2 env
+	  else not_subtype (stringOf te) (stringOf t) loc
+	| None -> 
+	  if ( isSubtypeOf env t (fromString "None") )
+	  then check_expr_list loc l1 l2 env
+	  else not_subtype "None" (stringOf t) loc
+
+and check_expr e env =
   match e.edesc with 
     | New s -> 
       if (not (isClass env s)) then unknown_type s e.eloc;
@@ -30,7 +47,18 @@ let rec check_expr e env =
       check_expr e1 env;
       check_expr e2 env;
       e.etype <- e2.etype
-    | Call (e,fname,args) -> (* TODO *) ()
+    | Call (e0,fname,args) -> 
+      check_expr e0 env; (*TODO*)
+      begin match e0.etype with 
+	| Some t -> 
+	  begin 
+	    try
+	      let fargs = findFun env (stringOf t) fname in
+	      check_expr_list e.eloc args fargs env
+	    with Not_found -> unknown_meth fname (stringOf t) e.eloc
+	  end
+	| None -> unknown_meth fname "None" e.eloc
+      end
     | If (e0, e1, e2) ->
       check_expr e0 env;
       begin match e0.etype with 
