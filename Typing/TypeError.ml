@@ -1,6 +1,7 @@
 type t =
   | Typeclash of string
   | Attributeclash of string
+  | Methodclash of string
   | Unknowntype of string
   | Unknownmeth of string * string
   | Notsubtype of string * string
@@ -19,6 +20,8 @@ let report_error = function
       print_string ("Type already defined "^t^": ")
   | Attributeclash a ->
       print_string ("Attribute already defined "^a^": ")
+  | Methodclash m ->
+      print_string ("Method already defined "^m^": ")
   | Unknowntype t ->
       print_string ("Unknown type "^t^": ")
   | Unknownmeth(s,t) ->
@@ -55,6 +58,9 @@ let type_clash t loc =
 
 let attribute_clash a loc =
   raise (Error(Attributeclash a,loc))
+
+let method_clash m loc =
+  raise (Error(Methodclash m,loc))
 
 let unknown_meth m t loc =
   raise (Error(Unknownmeth(m,t),loc))

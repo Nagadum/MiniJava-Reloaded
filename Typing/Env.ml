@@ -1,17 +1,27 @@
 open TypeError
 
 exception ClassAlreadyPresent of string
+exception MethodAlreadyPresent of string
 
 type tEnv_v = (string, Type.t) Hashtbl.t 
 
 and tEnv_c = (string, tClasse) Hashtbl.t 
 
-and t_funs = (string, Type.t list) Hashtbl.t
+and t_funs = (string, tFun) Hashtbl.t
 
 and tEnv = {
 
   env_v : tEnv_v ;
   env_c : tEnv_c
+
+}
+
+and tArg = Type.t * string
+
+and tFun = {
+
+  fargs : tArg list ;
+  freturn : Type.t
 
 }
 
@@ -38,11 +48,11 @@ let makeEnv v c = {
 let makeClassInt () =
   let c = makeClass in
   let t_int = (Type.fromString "Int") in
-  Hashtbl.add c.funs "add" [t_int];
-  Hashtbl.add c.funs "sub" [t_int];
-  Hashtbl.add c.funs "mul" [t_int];
-  Hashtbl.add c.funs "div" [t_int];
-  Hashtbl.add c.funs "mod" [t_int];
+  Hashtbl.add c.funs "add" { fargs = [(t_int, "n")]; freturn = t_int };
+  Hashtbl.add c.funs "sub" { fargs = [(t_int, "n")]; freturn = t_int };
+  Hashtbl.add c.funs "mul" { fargs = [(t_int, "n")]; freturn = t_int };
+  Hashtbl.add c.funs "div" { fargs = [(t_int, "n")]; freturn = t_int };
+  Hashtbl.add c.funs "mod" { fargs = [(t_int, "n")]; freturn = t_int };
   c
 
 let initialEnv () = 
@@ -70,6 +80,10 @@ let isClass env c =
 let findFun env c =
   Hashtbl.find (Hashtbl.find(env.env_c) c).funs
 
+let isFun env c f =
+  try findFun env c f; true
+  with Not_found -> false
+
 let addVar env n t = 
   let new_v = Hashtbl.copy env.env_v in
   Hashtbl.add new_v n t; 
@@ -81,6 +95,15 @@ let addClass env c =
   Hashtbl.add new_c c makeClass ; 
   makeEnv env.env_v new_c
 
+let addFun env cname fname f = 
+  if (isFun env cname fname) then raise (MethodAlreadyPresent(fname)) ;
+  let new_env_c = Hashtbl.copy env.env_c in
+  let old_c = findClass env cname in
+  let new_funs = Hashtbl.copy old_c.funs in
+  Hashtbl.add new_funs fname f ;
+  Hashtbl.add new_env_c cname {csuper = old_c.csuper; funs = new_funs} ;
+  makeEnv env.env_v new_env_c
+    
 let setSuper env classname supername =
   let new_env_c = Hashtbl.copy env.env_c in
   let oldc = findClass env classname in

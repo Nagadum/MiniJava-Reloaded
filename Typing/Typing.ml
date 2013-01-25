@@ -21,7 +21,7 @@ let rec find_types type_asts env =
     | c1::others -> try find_types others (addClass env c1.cname)
       with ClassAlreadyPresent _ -> type_clash c1.cname c1.cloc
 
-let analyse_super c env =
+let check_super c env =
   let c_supertype = (fromString c.cparent) in
   let c_type = (fromString c.cname) in
   if not (isClass env c.cparent)
@@ -29,33 +29,57 @@ let analyse_super c env =
   if (isSubtypeOf env c_type c_supertype)
   then inheritance_cycle (c.cname) (c.cparent) c.cloc;
   setSuper env c.cname c.cparent
+
+let rec check_args loc f args env =
+  match args with
+    | [] -> f
+    | ( aname, atype )::l -> 
+      if not (isClass env atype)
+      then unknown_type atype loc;
+      let this_arg = ((fromString atype), aname) in
+      let new_args = this_arg::f.fargs in
+      let new_f = { fargs = new_args ; freturn = f.freturn} in
+      check_args loc new_f l env
+
+let rec check_funs c funs env =
+  match funs with 
+    | [] -> env
+    | f1::others -> 
+      if not (isClass env f1.mreturntype)
+      then unknown_type f1.mreturntype f1.mloc;
+      let f = {fargs=[]; freturn = (fromString f1.mreturntype)} in
+      let f_wargs = check_args f1.mloc f f1.margstype env in
+      try let new_env = addFun env c f1.mname f_wargs in
+	  check_funs c others new_env
+      with MethodAlreadyPresent(s) -> method_clash f1.mname f1.mloc
   
 let rec analyse_type type_asts env =
   match type_asts with
     | [] -> env
-    | c1::others -> let super_env = analyse_super c1 env in
-		    analyse_type others super_env
+    | c1::others -> let super_env = check_super c1 env in
+		    let meth_env = check_funs c1.cname c1.cmethods super_env in
+		    analyse_type others meth_env
 
 let check_types type_asts env = 
   let env_with_type = find_types type_asts env in
   analyse_type type_asts env_with_type
 
-let rec check_expr_list loc lex lt env =
-  match (lex, lt) with
+let rec match_exprlist_args loc lex args env =
+  match (lex, args) with
     | ([], []) -> ()
     | ([], l) -> not_enough_args loc
     | (l, []) -> too_much_args loc
-    | (e::l1, t::l2) -> 
+    | (e::l1, (atype,_)::l2) -> 
       check_expr e env;
       match e.etype with
 	| Some te ->
-	  if ( isSubtypeOf env t te )
-	  then check_expr_list loc l1 l2 env
-	  else not_subtype (stringOf te) (stringOf t) loc
+	  if ( isSubtypeOf env atype te )
+	  then match_exprlist_args loc l1 l2 env
+	  else not_subtype (stringOf te) (stringOf atype) loc
 	| None -> 
-	  if ( isSubtypeOf env t (fromString "None") )
-	  then check_expr_list loc l1 l2 env
-	  else not_subtype "None" (stringOf t) loc
+	  if ( isSubtypeOf env atype (fromString "None") )
+	  then match_exprlist_args loc l1 l2 env
+	  else not_subtype "None" (stringOf atype) loc
 
 and check_expr e env =
   match e.edesc with 
@@ -67,14 +91,18 @@ and check_expr e env =
       check_expr e2 env;
       e.etype <- e2.etype
     | Call (e0,fname,args) -> 
-      check_expr e0 env; (*TODO*)
+      check_expr e0 env;
       begin match e0.etype with 
 	| Some t -> 
 	  begin 
 	    try
-	      let fargs = findFun env (stringOf t) fname in
-	      check_expr_list e.eloc args fargs env
-	    with Not_found -> unknown_meth fname (stringOf t) e.eloc
+	      let f = (findFun env (stringOf t) fname) in
+	      let frt_n = (stringOf f.freturn) in
+	      if not (isClass env frt_n) then unknown_type frt_n e.eloc;
+	      match_exprlist_args e.eloc args f.fargs env;
+	      e.etype <- Some f.freturn
+	    with 
+		Not_found -> unknown_meth fname (stringOf t) e.eloc
 	  end
 	| None -> unknown_meth fname "None" e.eloc
       end
