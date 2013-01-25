@@ -24,6 +24,8 @@ let rec find_types type_asts env =
 let analyse_super c env =
   let c_supertype = (fromString c.cparent) in
   let c_type = (fromString c.cname) in
+  if not (isClass env c.cparent)
+  then unknown_type c.cparent c.cloc;
   if (isSubtypeOf env c_type c_supertype)
   then inheritance_cycle (c.cname) (c.cparent) c.cloc;
   setSuper env c.cname c.cparent
