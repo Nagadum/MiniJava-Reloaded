@@ -80,3 +80,9 @@ let addClass env c =
   let new_c = Hashtbl.copy env.env_c in
   Hashtbl.add new_c c makeClass ; 
   makeEnv env.env_v new_c
+
+let setSuper env classname supername =
+  let new_env_c = Hashtbl.copy env.env_c in
+  let oldc = findClass env classname in
+  Hashtbl.add new_env_c classname {csuper = (Type.fromString supername); funs = oldc.funs} ; 
+  makeEnv env.env_v new_env_c

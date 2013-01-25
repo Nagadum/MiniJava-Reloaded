@@ -3,12 +3,6 @@ open TypeError
 open Env
 open Type
 
-let rec check_types type_asts env = 
-  match type_asts with
-    | [] -> env
-    | c1::others -> try check_types others (addClass env c1.cname)
-      with ClassAlreadyPresent _ -> type_clash c1.cname c1.cloc
-
 let rec isSubtypeOf env t_p t_c =
   if (t_p = t_c)
   then true
@@ -20,6 +14,29 @@ let rec isSubtypeOf env t_p t_c =
       let t_cs = (findClass env (stringOf t_c)) in
       isSubtypeOf env t_p (getSuper t_cs)
     end
+
+let rec find_types type_asts env = 
+  match type_asts with
+    | [] -> env
+    | c1::others -> try find_types others (addClass env c1.cname)
+      with ClassAlreadyPresent _ -> type_clash c1.cname c1.cloc
+
+let analyse_super c env =
+  let c_supertype = (fromString c.cparent) in
+  let c_type = (fromString c.cname) in
+  if (isSubtypeOf env c_type c_supertype)
+  then inheritance_cycle (c.cname) (c.cparent) c.cloc;
+  setSuper env c.cname c.cparent
+  
+let rec analyse_type type_asts env =
+  match type_asts with
+    | [] -> env
+    | c1::others -> let super_env = analyse_super c1 env in
+		    analyse_type others super_env
+
+let check_types type_asts env = 
+  let env_with_type = find_types type_asts env in
+  analyse_type type_asts env_with_type
 
 let rec check_expr_list loc lex lt env =
   match (lex, lt) with

@@ -12,3 +12,4 @@ val findClass : tEnv -> string -> tClasse
 val findFun : tEnv -> string -> string -> Type.t list
 val addVar : tEnv -> string -> Type.t -> tEnv
 val addClass : tEnv -> string -> tEnv
+val setSuper : tEnv -> string -> string -> tEnv
