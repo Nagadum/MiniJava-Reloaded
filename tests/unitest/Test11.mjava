@@ -1,4 +1,6 @@
-// Expected : Attribute already defined line 5
+// Expected : Attribute already defined line 7
+class B {}
+
 class A {
 
       A a;

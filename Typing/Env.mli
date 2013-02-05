@@ -10,6 +10,7 @@ val getSuper : tClasse -> Type.t
 val makeEnv : tEnv_v -> tEnv_c -> tEnv
 val initialEnv : unit -> tEnv
 
+val isVar : tEnv -> string -> bool
 val findVar : tEnv -> string -> Type.t
 val addVar : tEnv -> string -> Type.t -> tEnv
 

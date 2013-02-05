@@ -66,6 +66,10 @@ let initialEnv () =
 
 let findVar env = Hashtbl.find (env.env_v)
 
+let isVar env v =
+  try findVar env v; true
+  with Not_found -> false
+
 let rec findInList l a = 
   match l with
     | [] -> false
