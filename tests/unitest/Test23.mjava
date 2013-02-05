@@ -1,0 +1,15 @@
+// Expected : Unknown variable b line 11
+
+class A {
+
+      A a;
+
+      Int foo() {
+
+          this ;
+          a ;
+          b
+
+      }
+
+}

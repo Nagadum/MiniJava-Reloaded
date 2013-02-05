@@ -1,0 +1,4 @@
+// Expected : A is already subtype of B line 4
+class A extends B {}
+
+class B extends A {}

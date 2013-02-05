@@ -1,0 +1,12 @@
+// Expected : Too much arguments line 11
+
+class A {
+
+      Int foo( Int i ) { i }
+
+}
+
+A a = new A in {
+  a.foo(5) ;
+  a.foo(5,7)
+}

@@ -1,0 +1,16 @@
+// Expected : T0 is not subtype of T1 line 15
+
+class A {
+
+      T1 foo( T1 t ) { t }
+
+}
+
+class T0 {}
+class T1 extends T0 {}
+class T2 extends T1 {}
+
+A a = new A in {
+  a.foo(new T2) ;
+  a.foo(new T0)
+}

@@ -1,0 +1,6 @@
+// Expected : Method already defined foo line 5
+
+class A  {
+      Int foo() { 5 }
+      Int foo() { 6 }
+}

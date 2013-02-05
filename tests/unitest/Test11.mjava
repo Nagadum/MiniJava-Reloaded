@@ -1,0 +1,7 @@
+// Expected : Attribute already defined line 5
+class A {
+
+      A a;
+      B a;
+
+}

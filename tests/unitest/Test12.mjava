@@ -1,0 +1,9 @@
+// Expected : A is not subtype of B line 7
+class A {}
+
+class B extends A {
+
+      A a = new B;
+      B b = new A;
+
+}

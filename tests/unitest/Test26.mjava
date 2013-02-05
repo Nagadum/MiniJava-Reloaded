@@ -1,0 +1,14 @@
+// Expected T1 is not castable to A line 13
+
+class T0 {}
+class T1 extends T0 {}
+class T2 extends T1 {}
+
+class A {}
+
+T1 t = new T2 in {
+   (T0) t ;
+   (T1) t ;
+   (T2) t ;
+   (A)  t
+}

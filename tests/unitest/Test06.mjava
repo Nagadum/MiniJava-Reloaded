@@ -1,0 +1,8 @@
+// Expected : Unknown type B line 7
+class A {
+}
+
+A a = new A in {
+  a instanceof A ;
+  a instanceof B
+}

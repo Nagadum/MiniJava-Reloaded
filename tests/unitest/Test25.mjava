@@ -1,0 +1,11 @@
+// Expected T0 is not subtype of T1 line 8
+
+class T0 {}
+class T1 extends T0 {}
+class T2 extends T1 {}
+
+T1 t = new T2 in {
+   T1 t2 = new T0 in {
+      t2
+   }
+}

@@ -1,0 +1,6 @@
+// Expected : Expected Int found String line 5
+
+class A  {
+      Int foo() { 5 }
+      Int foo2() { "bar" }
+}

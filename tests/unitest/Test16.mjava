@@ -1,0 +1,10 @@
+// Expected : Unknown method bar in A line 9
+
+class A {
+      Int foo() { 5 }
+}
+
+A a = new A in {
+  a.foo() ;
+  a.bar()
+}

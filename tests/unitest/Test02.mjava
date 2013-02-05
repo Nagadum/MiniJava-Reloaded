@@ -1,0 +1,6 @@
+// Expected : Unknown type B line 4
+class A {
+
+      B myAttr;
+
+}

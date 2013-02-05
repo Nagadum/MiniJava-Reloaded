@@ -1,0 +1,9 @@
+// Expected : Expected Boolean ,found Int line 7
+
+if ( true ) {
+   5
+};
+
+if (4) {
+   3
+}

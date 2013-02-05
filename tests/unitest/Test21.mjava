@@ -1,0 +1,8 @@
+// Expected : Unknown variable b line 7
+
+class A {}
+
+A a = new A in {
+  a ;
+  b
+}

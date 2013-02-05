@@ -1,0 +1,17 @@
+// Expected T0 is not a subtype of T1 line 13
+
+class T0 {}
+class T1 extends T0 {}
+class T2 extends T1 {}
+
+class A {
+
+      T1 t;
+      
+      Int foo() {
+          t = new T2 ;
+          t = new T0 ;
+          5
+      }     
+
+}

@@ -1,0 +1,4 @@
+// Expected : Type already defined A line 4
+class A {}
+
+class A {}

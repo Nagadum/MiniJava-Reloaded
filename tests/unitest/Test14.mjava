@@ -1,0 +1,13 @@
+// Expected : Method already defined foo line 12
+
+class A  {
+      Int foo() { 5 }
+}
+
+class B extends A {
+      Int foo() { 6 }
+}
+
+class C extends A {
+      Int foo(Int i) { i }
+}
