@@ -48,7 +48,7 @@ and check_expr e env =
 	| Some t -> 
 	  begin 
 	    try
-	      let f = (findFun env (stringOf t) fname) in
+	      let f = (findFun_rec env (stringOf t) fname) in
 	      let frt_n = (stringOf f.freturn) in
 	      if not (isClass env frt_n) then unknown_type frt_n e.eloc;
 	      match_exprlist_args e.eloc args f.fargs env;
@@ -162,6 +162,14 @@ let rec check_args loc f args env =
       let new_f = { fargs = new_args ; freturn = f.freturn} in
       check_args loc new_f l env
 
+(* Compare 2 liste d'argument *)
+let rec compare_args args1 args2 =
+  match (args1, args2) with
+    | ([],[]) -> true
+    | (_::q1, []) -> false
+    | ([], _::q2) -> false
+    | ((t1,_)::q1, (t2,_)::q2) -> (t1 = t2) && (compare_args q1 q2)
+
 (* Verifie la declaration des fonctions d'une classe *)
 let rec check_funs c funs env =
   match funs with 
@@ -172,6 +180,9 @@ let rec check_funs c funs env =
       let f = {fargs=[]; freturn = (fromString f1.mreturntype)} in
       let f_wargs = check_args f1.mloc f f1.margstype env in
       try let new_env = addFun env c f1.mname f_wargs in
+          (* On ne peut pas verifier ici si c'est une redefinition 
+             car on n'a pas forcement déjà analysé les fonctions
+             de la classe parent. *)
 	  check_funs c others new_env
       with MethodAlreadyPresent(s) -> method_clash f1.mname f1.mloc
   
@@ -203,6 +214,38 @@ let rec check_attributes c attrs env =
               if not (isSubtypeOf env (fromString a1.atype) t)
               then  not_subtype (stringOf t) a1.atype a1.aloc;
               check_attributes c others new_env
+
+(* Ajoute une liste de parametres à l'environnement *)
+let rec add_params params env =
+  match params with 
+    | [] -> env
+    | (pname,ptype)::q -> let new_env = addVar env pname (fromString ptype) in
+                          add_params q new_env
+
+(* On verifie la definition des fonctions *)
+let rec check_funs_def c funs env =
+  match funs with 
+    | [] -> ()
+    | f1::others -> 
+      (* Si c'est une redefinition, on verifie les arguments *)
+      let cparent = stringOf (getSuper (findClass env c)) in
+      if ( isFun_rec env cparent f1.mname )
+      then begin
+        let fparent = findFun_rec env cparent f1.mname in
+        let fchild = findFun env c f1.mname in
+        if not (compare_args fchild.fargs fparent.fargs)
+        then method_clash f1.mname f1.mloc
+      end;
+      (* On type le corps de la methode, et on verifie coherence *)
+      let new_env = add_params f1.margstype env in
+      check_expr f1.mbody new_env;
+      match f1.mbody.etype with
+        | None -> incorrect_type f1.mreturntype "None" f1.mloc
+        | Some t -> 
+          if not (isSubtypeOf env (fromString f1.mreturntype) t)
+          then  not_subtype (stringOf t) f1.mreturntype f1.mloc;
+          check_funs_def c others env
+      
       
 (* Vérifie l'intérieur des classes *)
 let rec examine_types type_asts env =
@@ -210,6 +253,7 @@ let rec examine_types type_asts env =
     | [] -> env
     | c1::others -> 
       let attr_env = check_attributes c1.cname c1.cattributes env in
+      check_funs_def c1.cname c1.cmethods attr_env ;
       examine_types others attr_env ;
       env
 

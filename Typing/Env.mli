@@ -19,7 +19,9 @@ val findClass : tEnv -> string -> tClasse
 val addClass : tEnv -> string -> tEnv
 
 val isFun : tEnv -> string -> string -> bool
+val isFun_rec : tEnv -> string -> string -> bool
 val findFun : tEnv -> string -> string -> tFun
+val findFun_rec : tEnv -> string -> string -> tFun
 val addFun : tEnv -> string -> string -> tFun -> tEnv
 
 val setSuper : tEnv -> string -> string -> tEnv

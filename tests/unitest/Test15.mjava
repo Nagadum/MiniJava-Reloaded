@@ -1,4 +1,4 @@
-// Expected : Expected Int found String line 5
+// Expected : String is not subtype of Int line 5
 
 class A  {
       Int foo() { 5 }

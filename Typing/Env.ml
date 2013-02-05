@@ -81,11 +81,27 @@ let isClass env c =
   try findClass env c; true
   with Not_found -> false
 
-let findFun env c =
-  Hashtbl.find (Hashtbl.find(env.env_c) c).funs
+let findFun env cname =
+  Hashtbl.find (Hashtbl.find(env.env_c) cname).funs
+  
+let rec findFun_rec env cname f =
+  try
+    Hashtbl.find (Hashtbl.find(env.env_c) cname).funs f
+  with Not_found ->
+    if (cname = "Object")
+    then raise Not_found
+    else 
+      begin
+        let c = findClass env cname in
+        findFun_rec env (Type.stringOf c.csuper) f
+      end
 
 let isFun env c f =
   try findFun env c f; true
+  with Not_found -> false
+
+let isFun_rec env c f =
+  try findFun_rec env c f; true
   with Not_found -> false
 
 let addVar env n t = 
