@@ -63,9 +63,22 @@ let rec eval_expr e env =
 	| Int a -> Int(-a)
 	| _ -> Null
     end
+    | New s -> (* TODO *) Null
     | Seq(e1, e2) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
         | (_, result) -> result
     end
+    | If(cond, then_exp, None) -> 
+      begin match((eval_expr cond env), (eval_expr then_exp env)) with
+        | ( Boolean true, e0 ) -> e0
+        | ( Boolean false, _ ) -> Null
+        | _ -> Null
+      end
+    | If(cond, then_exp, Some else_exp) -> 
+      begin match((eval_expr cond env), (eval_expr then_exp env), (eval_expr else_exp env)) with
+        | ( Boolean true, e0, _ ) -> e0
+        | ( Boolean false, _, e0) -> e0
+        | _ -> Null
+      end
     | Define (varname, vartype, varvalue, e) -> 
 	let newenv = TypeEnv.addVar env varname (eval_expr varvalue env) in
 	  eval_expr e newenv
@@ -75,6 +88,9 @@ let rec eval_expr e env =
         | Boolean a -> Boolean(a)
         | String a -> String(a)
 	| _ -> Null
-      end
+    end
+    | Assign(varname, varvalue) -> (* TODO *) Null
+    | Cast(new_type, e) -> (* TODO *) Null
+    | Instanceof(e, t) -> (* TODO *) Null
     | _ -> Null
 
