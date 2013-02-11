@@ -39,7 +39,7 @@ let compile str =
             | None -> print_string "Unable to determine type\n"
           end ;
 	  print_endline "--------Evaluating----------";
-	  print_endline (AST.string_of_value (Eval.eval_expr eo (TypeEnv.initialEnv())))
+	  print_endline ("Result = " ^ (AST.string_of_value (Eval.eval_expr eo (TypeEnv.initialEnv()))))
 	| _ ->
 	  print_endline "--------No Evaluation----------";
     with Parsing.Parse_error ->

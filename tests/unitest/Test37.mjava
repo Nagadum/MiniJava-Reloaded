@@ -1,0 +1,7 @@
+//Expected (if(false) 5 else 6) = 6
+
+if (false) {
+   5
+} else {
+  6
+}

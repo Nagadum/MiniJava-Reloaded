@@ -1,0 +1,3 @@
+// Expected true && true = true
+
+true && true

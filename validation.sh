@@ -4,5 +4,5 @@ do
     echo $f
     foo=$(head -1 $f)
     echo $foo
-    ./minijavac $f | grep -i 'Error\|File'
+    ./minijavac $f | grep -i 'Error\|File\|Result'
 done
