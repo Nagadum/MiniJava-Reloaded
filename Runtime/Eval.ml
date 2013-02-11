@@ -1,6 +1,7 @@
 open AST
 open Env
 open TypeEnv
+open String
 
 let rec eval_expr e env =
   match e.edesc with
@@ -40,17 +41,36 @@ let rec eval_expr e env =
         | (Int a, Int b) -> Boolean ( a > b )
         | _ -> Null
     end
+    (* TODO pour ludovic : ge, lt, le en s'inspirant de gt*)
+    |Call(e1, "eq", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
+        | (Int a, Int b) -> Boolean ( a = b )
+        | (Boolean a, Boolean b) -> Boolean ( a = b )
+        | (String a, String b) -> Boolean ( (String.compare a b) = 0 )
+       (* | (String a, String b) -> Int ( (String.compare a b) )*)
+        | (Null, Null) -> Boolean(true)
+          (* TODO Comparaison d'objets = comparaison de pointeurs ou surcharge de == *)
+        | _ -> Boolean(false) (*Deux choses incomparable ne sont jamais egales*)
+    end
+    |Call(e1, "neq", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
+        | (Int a, Int b) -> Boolean ( a <> b )
+        | (Boolean a, Boolean b) -> Boolean ( a <> b )
+        | (String a, String b) -> Boolean ( (String.compare a b) <> 0 )
+        | (Null, Null) -> Boolean(true)
+          (* TODO Comparaison d'objets = comparaison de pointeurs ou surcharge de == *)
+        | _ -> Boolean(true) (*Deux choses incomparable sont toujours differentes*)
+    end
     | Call(e1, "neg", _) ->  begin match (eval_expr e1 env) with
 	| Int a -> Int(-a)
 	| _ -> Null
     end
-      (* TODO : ge, lt, le *)
     | Define (varname, vartype, varvalue, e) -> 
 	let newenv = TypeEnv.addVar env varname (eval_expr varvalue env) in
 	  eval_expr e newenv
     | Var v -> (findVar env)  v
     | Val v -> begin match v with 	
-	| Int a -> Int(a)
+        | Int a -> Int(a)
+        | Boolean a -> Boolean(a)
+        | String a -> String(a)
 	| _ -> Null
       end
     | _ -> Null
