@@ -54,6 +54,7 @@ let makeClassInt () =
   Hashtbl.add c.funs "mul" { fargs = [(t_int, "n")]; freturn = t_int };
   Hashtbl.add c.funs "div" { fargs = [(t_int, "n")]; freturn = t_int };
   Hashtbl.add c.funs "mod" { fargs = [(t_int, "n")]; freturn = t_int };
+  Hashtbl.add c.funs "neg" { fargs = []; freturn = t_int };
   Hashtbl.add c.funs "gt"  { fargs = [(t_int, "n")]; freturn = t_bool };
   Hashtbl.add c.funs "ge"  { fargs = [(t_int, "n")]; freturn = t_bool };
   Hashtbl.add c.funs "lt"  { fargs = [(t_int, "n")]; freturn = t_bool };
