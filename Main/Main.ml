@@ -3,6 +3,7 @@ open List
 open Eval
 open Env
 open TypeEnv
+open AST
 
 let get_file str =
   let temp2 = Filename.check_suffix str ".mjava" in
@@ -33,6 +34,10 @@ let compile str =
       Typing.type_program t;
       match t with
 	| (cl,Some eo) -> 
+          begin match eo.etype with
+            | Some t0 -> print_endline (Type.stringOf t0)
+            | None -> print_string "Unable to determine type\n"
+          end ;
 	  print_endline "--------Evaluating----------";
 	  print_endline (AST.string_of_value (Eval.eval_expr eo (TypeEnv.initialEnv())))
 	| _ ->
