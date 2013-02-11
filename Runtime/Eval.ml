@@ -63,6 +63,9 @@ let rec eval_expr e env =
 	| Int a -> Int(-a)
 	| _ -> Null
     end
+    | Seq(e1, e2) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
+        | (_, result) -> result
+    end
     | Define (varname, vartype, varvalue, e) -> 
 	let newenv = TypeEnv.addVar env varname (eval_expr varvalue env) in
 	  eval_expr e newenv
