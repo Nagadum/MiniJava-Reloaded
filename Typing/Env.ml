@@ -69,12 +69,20 @@ let makeClassObject () =
   Hashtbl.add c.funs "neq" { fargs = [(t_obj, "o")]; freturn = t_bool };
   c
 
+let makeClassBool () =
+  let c = makeClass in
+  let t_bool = (Type.fromString "Boolean") in
+  Hashtbl.add c.funs "and"  { fargs = [(t_bool, "b")]; freturn = t_bool };
+  Hashtbl.add c.funs "or" { fargs = [(t_bool, "b")]; freturn = t_bool };
+  Hashtbl.add c.funs "not" { fargs = []; freturn = t_bool };
+  c
+
 let initialEnv () = 
   let result = makeEnv (Hashtbl.create 17 : tEnv_v) (Hashtbl.create 17 : tEnv_c) in
-  Hashtbl.add result.env_c "Object" makeClass;
+  Hashtbl.add result.env_c "Object" (makeClassObject());
   Hashtbl.add result.env_c "None" makeClass;
   Hashtbl.add result.env_c "Int" (makeClassInt());
-  Hashtbl.add result.env_c "Boolean" (makeClassObject());
+  Hashtbl.add result.env_c "Boolean" (makeClassBool());
   Hashtbl.add result.env_c "String" makeClass;
   result
 
