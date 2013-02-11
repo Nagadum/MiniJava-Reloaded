@@ -48,11 +48,16 @@ let makeEnv v c = {
 let makeClassInt () =
   let c = makeClass in
   let t_int = (Type.fromString "Int") in
+  let t_bool = (Type.fromString "Boolean") in
   Hashtbl.add c.funs "add" { fargs = [(t_int, "n")]; freturn = t_int };
   Hashtbl.add c.funs "sub" { fargs = [(t_int, "n")]; freturn = t_int };
   Hashtbl.add c.funs "mul" { fargs = [(t_int, "n")]; freturn = t_int };
   Hashtbl.add c.funs "div" { fargs = [(t_int, "n")]; freturn = t_int };
   Hashtbl.add c.funs "mod" { fargs = [(t_int, "n")]; freturn = t_int };
+  Hashtbl.add c.funs "gt"  { fargs = [(t_int, "n")]; freturn = t_bool };
+  Hashtbl.add c.funs "ge"  { fargs = [(t_int, "n")]; freturn = t_bool };
+  Hashtbl.add c.funs "lt"  { fargs = [(t_int, "n")]; freturn = t_bool };
+  Hashtbl.add c.funs "le"  { fargs = [(t_int, "n")]; freturn = t_bool };
   c
 
 let initialEnv () = 
