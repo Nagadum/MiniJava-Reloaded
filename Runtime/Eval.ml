@@ -36,6 +36,11 @@ let rec eval_expr e env =
 	| (Boolean a, Boolean b) -> Boolean (a || b)
 	| _ -> Null
     end
+    |Call(e1, "gt", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
+        | (Int a, Int b) -> Boolean ( a > b )
+        | _ -> Null
+    end
+      (* TODO : ge, lt, le *)
     | Define (varname, vartype, varvalue, e) -> 
 	let newenv = TypeEnv.addVar env varname (eval_expr varvalue env) in
 	  eval_expr e newenv
