@@ -1,0 +1,12 @@
+//Expected : Illegal downcast :A is not a subtype of B
+
+class A {}
+
+class B extends A {}
+
+A a = new A in {
+  B b = new B in {
+    (A) b;
+    (B) a
+  }
+}

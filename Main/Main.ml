@@ -58,6 +58,10 @@ let compile str =
         close_in (input_file);
         Error.report_error e;
 	Location.print l
+      | RuntimeError.RuntimeError(e) ->
+        close_in (input_file);
+        RuntimeError.report_error e;
+          
   with Sys_error s ->
     print_endline ("Can't find file '" ^ file ^ "'")
 

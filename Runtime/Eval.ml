@@ -2,6 +2,7 @@ open AST
 open Env
 open TypeEnv
 open String
+open RuntimeError
 
 let rec eval_expr e env =
   match e.edesc with
@@ -103,7 +104,17 @@ let rec eval_expr e env =
 	| _ -> Null
     end
     | Assign(varname, varvalue) -> (* TODO *) Null
-    | Cast(new_type, e) -> (* TODO *) Null
+    | Cast(new_type, e) ->
+      begin match (eval_expr e env) with
+        | Int a -> Int(a)
+        | Boolean a -> Boolean(a)
+        | String a -> String(a)
+        | Reference a -> 
+          if (TypeEnv.isInstance env new_type a)
+          then Reference(a)
+          else RuntimeError.illegal_downcast (TypeEnv.getType env a) new_type
+	| _ -> Null
+      end
     | Instanceof(e, t) -> 
       begin match (eval_expr e env) with
         | Int a -> Boolean(t = "Int")

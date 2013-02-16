@@ -135,6 +135,9 @@ let rec isSubtype env cc cp =
     let csuper = (findClass env cc).super in
     isSubtype env csuper cp
 
+let getType env id =
+   (findObj env id).myClass
+
 let isInstance env c id =
-  let c0 = (findObj env id).myClass in
+  let c0  = getType env id in
   isSubtype env c0 c
