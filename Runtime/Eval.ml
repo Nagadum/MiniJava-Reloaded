@@ -57,9 +57,9 @@ let rec eval_expr e env =
         | (Int a, Int b) -> Boolean ( a = b )
         | (Boolean a, Boolean b) -> Boolean ( a = b )
         | (String a, String b) -> Boolean ( (String.compare a b) = 0 )
-       (* | (String a, String b) -> Int ( (String.compare a b) )*)
         | (Null, Null) -> Boolean(true)
-          (* TODO Comparaison d'objets = comparaison de pointeurs ou surcharge de == *)
+        | (Reference a, Reference b) -> Boolean ( a = b )
+          (* TODO surcharge de == *)
         | _ -> Boolean(false) (*Deux choses incomparable ne sont jamais egales*)
     end
     |Call(e1, "neq", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
@@ -67,14 +67,15 @@ let rec eval_expr e env =
         | (Boolean a, Boolean b) -> Boolean ( a <> b )
         | (String a, String b) -> Boolean ( (String.compare a b) <> 0 )
         | (Null, Null) -> Boolean(true)
-          (* TODO Comparaison d'objets = comparaison de pointeurs ou surcharge de == *)
+        | (Reference a, Reference b) -> Boolean ( a <> b )
+          (* TODO surcharge de != *)
         | _ -> Boolean(true) (*Deux choses incomparable sont toujours differentes*)
     end
     | Call(e1, "neg", _) ->  begin match (eval_expr e1 env) with
 	| Int a -> Int(-a)
 	| _ -> Null
     end
-    | New s -> (* TODO *) Null
+    | New s -> Reference(TypeEnv.newObject env s)
     | Seq(e1, e2) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
         | (_, result) -> result
     end
@@ -98,6 +99,7 @@ let rec eval_expr e env =
         | Int a -> Int(a)
         | Boolean a -> Boolean(a)
         | String a -> String(a)
+        | Reference a -> Reference(a)
 	| _ -> Null
     end
     | Assign(varname, varvalue) -> (* TODO *) Null

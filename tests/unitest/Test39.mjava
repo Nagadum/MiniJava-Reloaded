@@ -1,0 +1,12 @@
+//Expected :  a1 = a2 = new A; b = new A; (a1 == a2)  && !(a1 != a2) && !(a1 == b) && (a1 != b) == true
+
+class A {
+}
+
+A a1 = new A in {
+    A b = new A in {
+        A a2 = a1 in {
+            (a1 == a2)  && !(a1 != a2) && !(a1 == b) && (a1 != b)
+        }
+    }
+}

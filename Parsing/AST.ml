@@ -5,6 +5,7 @@ type value =
   | Int of int
   | Null
   | Boolean of bool
+  | Reference of int
 
 type expression_desc = 
   | New of string
