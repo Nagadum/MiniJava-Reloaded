@@ -1,9 +1,15 @@
+(* Definition de l'environnement d'execution *)
+
+(* Tas *)
 type tEnv_t = (int, tObject) Hashtbl.t 
 
+(* Espace des classe *)
 and tEnv_c = (string, tClasse) Hashtbl.t
 
+(* Espaces des variables locales *)
 and tEnv_v = (string, AST.value) Hashtbl.t
 
+(* Espaces des fonctions *)
 and tEnv_f = (fun_id, tFunction) Hashtbl.t
 
 and tEnv = {
@@ -39,6 +45,8 @@ and tFunction = {
 
 }
 
+(* Instanciations des types *)
+
 let makeObject cname = {
   myClass = cname
 }
@@ -61,8 +69,7 @@ let makeEnv e_t e_c e_v e_f = {
     env_f = e_f;
 }
 
-let initialEnv () = 
-  makeEnv (Hashtbl.create 17 : tEnv_t) (Hashtbl.create 17 : tEnv_c) (Hashtbl.create 17 : tEnv_v) (Hashtbl.create 17 : tEnv_f)
+(*Recherches dans l'environnement*)
 
 let findObj env = Hashtbl.find (env.env_t)
 
@@ -71,6 +78,11 @@ let findClass env = Hashtbl.find (env.env_c)
 let findVar env = Hashtbl.find (env.env_v)
 
 let findFun env = Hashtbl.find (env.env_f)
+
+(*Modifications de l'environnement*)
+
+let initialEnv () = 
+  makeEnv (Hashtbl.create 17 : tEnv_t) (Hashtbl.create 17 : tEnv_c) (Hashtbl.create 17 : tEnv_v) (Hashtbl.create 17 : tEnv_f)
 
 let addObj env n t = 
   let new_t = Hashtbl.copy (env.env_t) in
@@ -91,6 +103,8 @@ let addFun env n t =
   let new_f = Hashtbl.copy (env.env_f) in
     Hashtbl.add new_f n t; 
     makeEnv env.env_t env.env_c env.env_v new_f
+
+(*Affichage de l'environnement pour debug*)
 
 let printClass cname c =
   print_endline ("---\nClass : " ^ cname);
