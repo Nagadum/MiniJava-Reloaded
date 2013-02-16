@@ -1,0 +1,11 @@
+//Expected : a = new A; b = new B(with B extends A); (b instanceof B) && (a instanceof A) && (b instanceof A) && !(a instanceof B) = true
+
+class A {}
+
+class B extends A {}
+
+A a = new A in {
+  B b = new B in {
+    (b instanceof B) && (a instanceof A) && (b instanceof A) && !(a instanceof B)
+  }
+}

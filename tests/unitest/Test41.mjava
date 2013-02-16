@@ -1,0 +1,3 @@
+//Expected (5 instanceof Int) && (true instanceof Boolean) && ("toto" instanceof String) = true
+
+(5 instanceof Int) && (true instanceof Boolean) && ("toto" instanceof String)

@@ -124,3 +124,17 @@ let newObject env cname =
   env.next <- (id + 1);
   id
 
+(* Gestion du polymorphisme *)
+
+let rec isSubtype env cc cp =
+  if (cc = cp)
+  then true
+  else if (cc = "Object")
+  then false
+  else 
+    let csuper = (findClass env cc).super in
+    isSubtype env csuper cp
+
+let isInstance env c id =
+  let c0 = (findObj env id).myClass in
+  isSubtype env c0 c

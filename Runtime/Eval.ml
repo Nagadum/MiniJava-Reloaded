@@ -104,6 +104,13 @@ let rec eval_expr e env =
     end
     | Assign(varname, varvalue) -> (* TODO *) Null
     | Cast(new_type, e) -> (* TODO *) Null
-    | Instanceof(e, t) -> (* TODO *) Null
+    | Instanceof(e, t) -> 
+      begin match (eval_expr e env) with
+        | Int a -> Boolean(t = "Int")
+        | Boolean a -> Boolean(t = "Boolean")
+        | String a -> Boolean(t = "String")
+        | Reference a -> Boolean(TypeEnv.isInstance env t a)
+	| _ -> Boolean(false)
+      end
     | _ -> Null
 
