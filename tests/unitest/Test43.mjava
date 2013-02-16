@@ -1,0 +1,17 @@
+// Testing methods and dynamic resolution : expecting 10
+
+class A {
+      Int myAddThree(Int a) {
+          a + 3
+      }
+}
+
+class B extends A {
+      Int myAddThree(Int a) {
+          a + 4
+      }
+}
+
+A a = new B in {
+  a.myAddThree(6)
+}

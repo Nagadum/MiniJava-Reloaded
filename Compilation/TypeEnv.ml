@@ -33,7 +33,7 @@ and tClasse = {
 
     super : string ;
     const : tConst ;
-    functions :  ( string * fun_id) list 
+    functions : (string, fun_id) Hashtbl.t 
 
 }
 
@@ -41,7 +41,8 @@ and fun_id = string
 
 and tFunction = {
 
-    dummy : string
+  fargs : string list ;
+  fbody : AST.expression
 
 }
 
@@ -58,9 +59,13 @@ let makeConst cname ()=
 let makeClass cname supername = {
   super = supername;
   const = makeConst cname;
-  functions = []
+  functions = (Hashtbl.create 17 : (string, fun_id) Hashtbl.t)
 }
 
+let makeFun args body = {
+  fargs = args;
+  fbody = body
+}
 
 let makeEnv e_t e_c e_v e_f i = {
     env_t = e_t;
@@ -107,12 +112,25 @@ let addFun env n t =
 
 (*Affichage de l'environnement pour debug*)
 
+let printFunID fname fid =
+  print_string (fname ^ "(" ^ fid ^ "), ")
+    
 let printClass cname c =
   print_endline ("---\nClass : " ^ cname);
-  print_endline ("extends " ^ c.super)
+  print_endline ("extends " ^ c.super);
+  Hashtbl.iter printFunID c.functions;
+  print_endline ""
+
+let printFunction fid f =
+  print_endline("---\nfunction : " ^ fid);
+  print_endline "Args: ";
+  List.iter print_endline f.fargs
 
 let printEnv env =
-  Hashtbl.iter printClass env.env_c
+  print_endline "----Classes----";
+  Hashtbl.iter printClass env.env_c;
+  print_endline "----Functions----";
+  Hashtbl.iter printFunction env.env_f
 
 (* Instantiations *)
 
@@ -141,3 +159,20 @@ let getType env id =
 let isInstance env c id =
   let c0  = getType env id in
   isSubtype env c0 c
+
+let rec getFun env cname fname =
+  let c = findClass env cname in
+  try
+    let fid = Hashtbl.find (c.functions) fname in
+    findFun env fid
+  with Not_found ->
+    getFun env c.super fname
+
+(* Gestion des methodes *)
+
+let getFunID cname fname =
+  (cname ^ "@" ^ fname)
+
+let addFunToClass cname fname env =
+  let c = findClass env cname in
+  Hashtbl.add c.functions fname (getFunID cname fname)

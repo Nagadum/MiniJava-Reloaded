@@ -4,7 +4,16 @@ open TypeEnv
 open String
 open RuntimeError
 
-let rec eval_expr e env =
+let rec addArgsToEnv env args values =
+  match (args, values) with
+    | ([],[]) -> env
+    | (arg::q1, value::q2) -> 
+      let newEnv = TypeEnv.addVar env arg (eval_expr value env) in
+      addArgsToEnv newEnv q1 q2
+    | _ -> env (*Ne devrait jamais arriver : TODO exception*)
+      
+
+and eval_expr e env =
   match e.edesc with
     | Call(e1, "not", _) ->  begin match (eval_expr e1 env) with
 	| Boolean a -> Boolean(not a)
@@ -76,6 +85,14 @@ let rec eval_expr e env =
 	| Int a -> Int(-a)
 	| _ -> Null
     end
+    | Call (e1, fname, args) -> begin match (eval_expr e1 env) with
+        | Reference a -> 
+          let cname = getType env a in
+          let f = TypeEnv.getFun env cname fname in
+          let envWithArgs = addArgsToEnv env f.fargs args in
+          eval_expr f.fbody envWithArgs
+        | _ -> Null
+    end
     | New s -> Reference(TypeEnv.newObject env s)
     | Seq(e1, e2) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
         | (_, result) -> result
@@ -123,5 +140,4 @@ let rec eval_expr e env =
         | Reference a -> Boolean(TypeEnv.isInstance env t a)
 	| _ -> Boolean(false)
       end
-    | _ -> Null
 
