@@ -62,5 +62,5 @@ INCS = $(patsubst %,-I %, $(DIRS))
 
 # object files needed for linkage
 OBJS = Location.cmo Error.cmo TypeError.cmo Type.cmo AST.cmo Parser.cmo Lexer.cmo \
-	Env.cmo Typing.cmo TypeEnv.cmo Eval.cmo Main.cmo
+	Env.cmo Typing.cmo TypeEnv.cmo Compilation.cmo Eval.cmo Main.cmo
 

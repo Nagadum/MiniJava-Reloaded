@@ -39,6 +39,21 @@ and tFunction = {
 
 }
 
+let makeObject cname = {
+  myClass = cname
+}
+
+let makeConst cname ()=
+  makeObject cname
+
+
+let makeClass cname supername = {
+  super = supername;
+  const = makeConst cname;
+  functions = []
+}
+
+
 let makeEnv e_t e_c e_v e_f = {
     env_t = e_t;
     env_c = e_c;
@@ -76,3 +91,10 @@ let addFun env n t =
   let new_f = Hashtbl.copy (env.env_f) in
     Hashtbl.add new_f n t; 
     makeEnv env.env_t env.env_c env.env_v new_f
+
+let printClass cname c =
+  print_endline ("---\nClass : " ^ cname);
+  print_endline ("extends " ^ c.super)
+
+let printEnv env =
+  Hashtbl.iter printClass env.env_c

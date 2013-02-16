@@ -3,6 +3,7 @@ open List
 open Eval
 open Env
 open TypeEnv
+open Compilation
 open AST
 
 let get_file str =
@@ -38,8 +39,11 @@ let compile str =
             | Some t0 -> print_endline (Type.stringOf t0)
             | None -> print_string "Unable to determine type\n"
           end ;
-	  print_endline "--------Evaluating----------";
-	  print_endline ("Result = " ^ (AST.string_of_value (Eval.eval_expr eo (TypeEnv.initialEnv()))))
+          print_endline "---------Compiling----------";
+          let tEnv = (Compilation.compile cl) in
+          TypeEnv.printEnv tEnv;
+          print_endline "--------Evaluating----------";
+          print_endline ("Result = " ^ (AST.string_of_value (Eval.eval_expr eo (tEnv))))
 	| _ ->
 	  print_endline "--------No Evaluation----------";
     with Parsing.Parse_error ->
