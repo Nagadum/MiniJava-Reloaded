@@ -41,7 +41,18 @@ let rec eval_expr e env =
         | (Int a, Int b) -> Boolean ( a > b )
         | _ -> Null
     end
-    (* TODO pour ludovic : ge, lt, le en s'inspirant de gt*)
+    |Call(e1, "ge", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
+        | (Int a, Int b) -> Boolean ( a >= b )
+        | _ -> Null
+    end
+    |Call(e1, "lt", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
+        | (Int a, Int b) -> Boolean ( a < b )
+        | _ -> Null
+    end
+    |Call(e1, "le", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
+        | (Int a, Int b) -> Boolean ( a <= b )
+        | _ -> Null
+    end 
     |Call(e1, "eq", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
         | (Int a, Int b) -> Boolean ( a = b )
         | (Boolean a, Boolean b) -> Boolean ( a = b )
