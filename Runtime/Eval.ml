@@ -15,7 +15,7 @@ let rec addArgsToEnv env args values =
 (* Genere l'environnement d'appel de fonctions *)
 and callEnv env p args values =
   let newEnv = TypeEnv.makeCallEnv env in
-  let envWithAttrs = TypeEnv.addAttrsToEnv env p in
+  let envWithAttrs = TypeEnv.addAttrsToEnv newEnv p in
   addArgsToEnv envWithAttrs args values
 
 (* Evalue une liste d'expressions *)
@@ -97,6 +97,7 @@ and eval_expr e env =
 	| _ -> Null
     end
     | Call (e1, fname, args) -> begin match (eval_expr e1 env) with
+        | Reference (-1) -> RuntimeError.invalid_reference()
         | Reference a -> 
           let cname = getType env a in
           let f = TypeEnv.getFun env cname fname in

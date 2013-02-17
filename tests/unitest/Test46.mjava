@@ -1,0 +1,16 @@
+// Expected : Invalid reference Error
+
+class A {
+      Int getTwo() {
+          2
+      }
+}
+
+class B {
+      A a;
+      Int run() {
+          a.getTwo()
+      }
+}
+
+(new B).run()
