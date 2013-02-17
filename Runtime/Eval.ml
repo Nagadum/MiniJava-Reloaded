@@ -15,15 +15,15 @@ let rec addArgsToEnv env args values =
 (* Genere l'environnement d'appel de fonctions *)
 and callEnv env p args values =
   let newEnv = TypeEnv.makeCallEnv env in
-  let envWithThis = TypeEnv.addVar newEnv "this" p in
-  addArgsToEnv envWithThis args values
+  let envWithAttrs = TypeEnv.addAttrsToEnv env p in
+  addArgsToEnv envWithAttrs args values
 
 (* Evalue une liste d'expressions *)
 and eval_expr_list l env =
   match l with
     | [] -> []
     | e1::others -> (eval_expr e1 env)::(eval_expr_list others env)
-      
+  
 and eval_expr e env =
   match e.edesc with
     | Call(e1, "not", _) ->  begin match (eval_expr e1 env) with
@@ -101,11 +101,11 @@ and eval_expr e env =
           let cname = getType env a in
           let f = TypeEnv.getFun env cname fname in
           let args_value = eval_expr_list args env in
-          let newEnv = callEnv env (Reference(a)) f.fargs args_value in
+          let newEnv = callEnv env a f.fargs args_value in
           eval_expr f.fbody newEnv
         | _ -> Null
     end
-    | New s -> Reference(TypeEnv.newObject env s)
+    | New s -> Reference(TypeEnv.newObject env (eval1 env) s)
     | Seq(e1, e2) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
         | (_, result) -> result
     end
@@ -152,4 +152,7 @@ and eval_expr e env =
         | Reference a -> Boolean(TypeEnv.isInstance env t a)
 	| _ -> Boolean(false)
       end
+
+and eval1 env e =
+  eval_expr e env
 

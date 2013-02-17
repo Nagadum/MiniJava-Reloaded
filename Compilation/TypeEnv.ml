@@ -23,17 +23,19 @@ and tEnv = {
 
 and tObject = {
 
-    myClass : string 
+    myClass : string ;
+    attrs : (string, AST.value) Hashtbl.t
 
 }
 
-and tConst = unit -> tObject
+and tConst = tEnv -> int -> (AST.expression -> AST.value) -> tObject
 
 and tClasse = {
 
     super : string ;
     const : tConst ;
-    functions : (string, fun_id) Hashtbl.t 
+    functions : (string, fun_id) Hashtbl.t ;
+    cattrs : (string, AST.expression) Hashtbl.t ;
 
 }
 
@@ -46,20 +48,41 @@ and tFunction = {
 
 }
 
+
+(*Recherches dans l'environnement*)
+
+let findObj env = Hashtbl.find (env.env_t)
+
+let findClass env = Hashtbl.find (env.env_c)
+
+let findVar env = Hashtbl.find (env.env_v)
+
+let findFun env = Hashtbl.find (env.env_f)
+
 (* Instanciations des types *)
 
-let makeObject cname = {
-  myClass = cname
-}
+let initAttr o f aname aexpr =
+  Hashtbl.add o.attrs aname (f aexpr)
 
-let makeConst cname ()=
+let makeObject cname env p f =
+  let c = findClass env cname in
+  let o = 
+    {
+      myClass = cname ;
+      attrs = (Hashtbl.create 17 : (string, AST.value) Hashtbl.t)
+    } in
+  Hashtbl.add o.attrs "this" (AST.Reference(p)) ;
+  Hashtbl.iter (initAttr o f) c.cattrs ;
+  o
+
+let makeConst cname =
   makeObject cname
-
 
 let makeClass cname supername = {
   super = supername;
   const = makeConst cname;
-  functions = (Hashtbl.create 17 : (string, fun_id) Hashtbl.t)
+  functions = (Hashtbl.create 17 : (string, fun_id) Hashtbl.t);
+  cattrs = (Hashtbl.create 17 : (string, AST.expression) Hashtbl.t)
 }
 
 let makeFun args body = {
@@ -74,16 +97,6 @@ let makeEnv e_t e_c e_v e_f i = {
     env_f = e_f;
     next = i
 }
-
-(*Recherches dans l'environnement*)
-
-let findObj env = Hashtbl.find (env.env_t)
-
-let findClass env = Hashtbl.find (env.env_c)
-
-let findVar env = Hashtbl.find (env.env_v)
-
-let findFun env = Hashtbl.find (env.env_f)
 
 (*Modifications de l'environnement*)
 
@@ -117,11 +130,17 @@ let addFun env n t =
 
 let printFunID fname fid =
   print_string (fname ^ "(" ^ fid ^ "), ")
+
+let printAttr name value =
+  print_string (name ^ ", ")
     
 let printClass cname c =
   print_endline ("---\nClass : " ^ cname);
   print_endline ("extends " ^ c.super);
+  print_string "Methods : " ;
   Hashtbl.iter printFunID c.functions;
+  print_string "\nAttributs : ";
+  Hashtbl.iter printAttr c.cattrs;
   print_endline ""
 
 let printFunction fid f =
@@ -137,10 +156,10 @@ let printEnv env =
 
 (* Instantiations *)
 
-let newObject env cname =
+let newObject env f cname =
   let id = env.next in
   let c = findClass env cname in
-  let obj = makeObject cname in
+  let obj = c.const env id f in
   Hashtbl.add env.env_t id obj;
   env.next <- (id + 1);
   id
@@ -179,3 +198,19 @@ let getFunID cname fname =
 let addFunToClass cname fname env =
   let c = findClass env cname in
   Hashtbl.add c.functions fname (getFunID cname fname)
+
+(* Gestion des attributs *)
+
+let rec addAttrsToClass cname attrs env =
+  match attrs with 
+    | [] -> ()
+    | (aname, avalue)::others ->
+        let c = findClass env cname in
+        Hashtbl.add c.cattrs aname avalue;
+        addAttrsToClass cname others env
+
+let addAttrsToEnv env p =
+  let o = findObj env p in 
+  let new_v = Hashtbl.copy (env.env_v) in
+  Hashtbl.iter (Hashtbl.add new_v) o.attrs;
+  makeEnv env.env_t env.env_c new_v env.env_f env.next

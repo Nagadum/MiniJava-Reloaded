@@ -1,0 +1,10 @@
+// Resting attributes. Expecting 5
+
+class A {
+      Int a = 5;
+      Int getFive() {
+          a
+      }
+}
+
+(new A).getFive()

@@ -1,5 +1,30 @@
 open TypeEnv
 open AST
+open Location
+
+(* Definit les attributs des objects d'une classe *)
+let rec makeAttrs env attrlist =
+  match attrlist with 
+    | [] -> []
+    | a::others ->
+      match a.adefault with
+        | Some e -> (a.aname, e)::(makeAttrs env others)
+        | None -> match a.atype with
+            | "Int" -> 
+              let e = { edesc = Val(Int(0)); eloc = Location.none; etype = None} in
+              (a.aname,e)::(makeAttrs env others)
+            | "String" -> 
+              let e = { edesc = Val(String("")); eloc = Location.none; etype = None} in
+              (a.aname,e)::(makeAttrs env others)
+            | "Boolean" -> 
+              let e = { edesc = Val(Boolean(false)); eloc = Location.none; etype = None} in
+              (a.aname,e)::(makeAttrs env others)
+            | "Null" -> 
+              let e = { edesc = Val(Null); eloc = Location.none; etype = None} in
+              (a.aname,e)::(makeAttrs env others)
+            | _ -> 
+              let e = { edesc = Val(Reference(-1)); eloc = Location.none; etype = None} in
+              (a.aname,e)::(makeAttrs env others)
 
 let rec getArgsName args =
   match args with 
@@ -26,6 +51,8 @@ let rec makeClassEnv typesAST env =
     | c::others ->
       let newClass = (TypeEnv.makeClass c.cname c.cparent) in
       let envWithClasses = TypeEnv.addClass env c.cname newClass in
+      let cattrs = makeAttrs envWithClasses c.cattributes in
+      TypeEnv.addAttrsToClass c.cname cattrs envWithClasses ;
       let envWithFuns = makeFuns c.cname c.cmethods envWithClasses in
       makeClassEnv others envWithFuns
 
