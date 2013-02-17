@@ -90,6 +90,9 @@ let findFun env = Hashtbl.find (env.env_f)
 let initialEnv () = 
   makeEnv (Hashtbl.create 17 : tEnv_t) (Hashtbl.create 17 : tEnv_c) (Hashtbl.create 17 : tEnv_v) (Hashtbl.create 17 : tEnv_f) 0
 
+let makeCallEnv oldEnv =
+  makeEnv oldEnv.env_t oldEnv.env_c (Hashtbl.create 17 : tEnv_v) oldEnv.env_f oldEnv.next
+
 let addObj env n t = 
   let new_t = Hashtbl.copy (env.env_t) in
     Hashtbl.add new_t n t; 

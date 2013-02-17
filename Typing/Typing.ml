@@ -3,7 +3,7 @@ open TypeError
 open Env
 open Type
 
-(* Vérifie si une classe est une sous-cmasse d'une autre *)
+(* Vérifie si une classe est une sous-classe d'une autre *)
 let rec isSubtypeOf env t_p t_c =
   if (t_p = t_c)
   then true
@@ -33,6 +33,7 @@ let rec match_exprlist_args loc lex args env =
 	  then match_exprlist_args loc l1 l2 env
 	  else not_subtype "None" (stringOf atype) loc
 
+(* Typage d'une expression *)
 and check_expr e env =
   match e.edesc with 
     | New s -> 
@@ -237,7 +238,8 @@ let rec check_funs_def c funs env =
         then method_clash f1.mname f1.mloc
       end;
       (* On type le corps de la methode, et on verifie coherence *)
-      let new_env = add_params f1.margstype env in
+      let env_with_args = add_params f1.margstype env in
+      let new_env = addVar env_with_args "this" (fromString c) in
       check_expr f1.mbody new_env;
       match f1.mbody.etype with
         | None -> incorrect_type f1.mreturntype "None" f1.mloc

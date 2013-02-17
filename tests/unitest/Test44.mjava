@@ -1,0 +1,18 @@
+
+class A {
+      Int getTen() {
+          10
+      }
+
+      Int run() {
+          (new B).run(this)
+      }
+}
+
+class B {
+      Int run(A a) {
+          a.getTen()
+      }
+}
+
+(new A).run()
