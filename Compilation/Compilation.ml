@@ -1,3 +1,4 @@
+(* Realise la phase de compilation *)
 open TypeEnv
 open AST
 open Location
@@ -37,6 +38,7 @@ let addFun cname fname fbody args env =
   let f = TypeEnv.makeFun fargs fbody in
   TypeEnv.addFun env fid f
 
+(* Compile les fonctions d'une classe *)
 let rec makeFuns cname funs env =
   match funs with
     | [] -> env
@@ -50,10 +52,13 @@ let rec makeClassEnv typesAST env =
     | [] -> env
     | c::others ->
       let newClass = (TypeEnv.makeClass c.cname c.cparent) in
+      (* On ajoute la classes à l'environnement *)
       let envWithClasses = TypeEnv.addClass env c.cname newClass in
       let cattrs = makeAttrs envWithClasses c.cattributes in
       TypeEnv.addAttrsToClass c.cname cattrs envWithClasses ;
+      (* On compile les méthodes définies dans la classe *)
       let envWithFuns = makeFuns c.cname c.cmethods envWithClasses in
+      (* On effectue le même travail pour les autres classes *)
       makeClassEnv others envWithFuns
 
 let compile typesAST =

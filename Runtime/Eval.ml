@@ -1,3 +1,5 @@
+(* Execution d'un programme minijava *)
+
 open AST
 open Env
 open TypeEnv
@@ -10,7 +12,7 @@ let rec addArgsToEnv env args values =
     | (arg::q1, value::q2) -> 
       let newEnv = TypeEnv.addVar env arg value in
       addArgsToEnv newEnv q1 q2
-    | _ -> env (*Ne devrait jamais arriver : TODO exception*)
+    | _ -> internal_error("Number of argument passed is incoherent with the method definition.")
 
 (* Genere l'environnement d'appel de fonctions *)
 and callEnv env p args values =
@@ -80,7 +82,6 @@ and eval_expr e env =
         | (String a, String b) -> Boolean ( (String.compare a b) = 0 )
         | (Null, Null) -> Boolean(true)
         | (Reference a, Reference b) -> Boolean ( a = b )
-          (* TODO surcharge de == *)
         | _ -> Boolean(false) (*Deux choses incomparable ne sont jamais egales*)
     end
     |Call(e1, "neq", e2::_) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
@@ -89,13 +90,13 @@ and eval_expr e env =
         | (String a, String b) -> Boolean ( (String.compare a b) <> 0 )
         | (Null, Null) -> Boolean(true)
         | (Reference a, Reference b) -> Boolean ( a <> b )
-          (* TODO surcharge de != *)
         | _ -> Boolean(true) (*Deux choses incomparable sont toujours differentes*)
     end
     | Call(e1, "neg", _) ->  begin match (eval_expr e1 env) with
 	| Int a -> Int(-a)
 	| _ -> Null
     end
+(* Execution d'une fonction *)
     | Call (e1, fname, args) -> begin match (eval_expr e1 env) with
         | Reference (-1) -> RuntimeError.invalid_reference()
         | Reference a -> 
@@ -106,36 +107,50 @@ and eval_expr e env =
           eval_expr f.fbody newEnv
         | _ -> Null
     end
+
     | New s -> Reference(TypeEnv.newObject env (eval1 env) s)
+
     | Seq(e1, e2) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
         | (_, result) -> result
     end
+
     | If(cond, then_exp, None) -> 
       begin match((eval_expr cond env), (eval_expr then_exp env)) with
         | ( Boolean true, e0 ) -> e0
         | ( Boolean false, _ ) -> Null
         | _ -> Null
       end
+
     | If(cond, then_exp, Some else_exp) -> 
       begin match((eval_expr cond env), (eval_expr then_exp env), (eval_expr else_exp env)) with
         | ( Boolean true, e0, _ ) -> e0
         | ( Boolean false, _, e0) -> e0
         | _ -> Null
       end
+
     | Define (varname, vartype, varvalue, e) -> 
 	let newenv = TypeEnv.addVar env varname (eval_expr varvalue env) in
 	  eval_expr e newenv
+
     | Var v -> (findVar env)  v
+
     | Val v -> begin match v with 	
         | Int a -> Int(a)
         | Boolean a -> Boolean(a)
         | String a -> String(a)
         | Reference a -> Reference(a)
-	| _ -> Null
+	| Null -> Null
     end
+
+(* Le resultat d'une assignation est Null *)
     | Assign(varname, varvalue) -> 
       TypeEnv.setAttr env varname (eval_expr varvalue env) ;
       Null
+
+(* Si B extends A, on ne sait pas au typage si une variable de type A est en fait
+B. Donc le cast peut échouer à l'execution
+On n'autorise pas pour l'instant le cast des types de base.
+*)
     | Cast(new_type, e) ->
       begin match (eval_expr e env) with
         | Int a -> Int(a)
@@ -145,8 +160,9 @@ and eval_expr e env =
           if (TypeEnv.isInstance env new_type a)
           then Reference(a)
           else RuntimeError.illegal_downcast (TypeEnv.getType env a) new_type
-	| _ -> Null
+	| Null -> Null
       end
+
     | Instanceof(e, t) -> 
       begin match (eval_expr e env) with
         | Int a -> Boolean(t = "Int")

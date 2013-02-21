@@ -15,3 +15,4 @@ val too_much_args : Location.t -> 'a
 val not_enough_args : Location.t -> 'a
 val incorrect_type : string -> string -> Location.t -> 'a
 val unknown_var : string -> Location.t -> 'a
+val typing_error : Location.t -> 'a

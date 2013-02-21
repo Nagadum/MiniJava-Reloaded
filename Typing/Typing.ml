@@ -1,3 +1,4 @@
+(* Typage d'un programme minijava *)
 open AST
 open TypeError
 open Env
@@ -16,6 +17,7 @@ let rec isSubtypeOf env t_p t_c =
       isSubtypeOf env t_p (getSuper t_cs)
     end
 
+(* Verifie la correspondance de typage entre une liste d'expressions et une liste d'arguments *)
 let rec match_exprlist_args loc lex args env =
   match (lex, args) with
     | ([], []) -> ()
@@ -28,21 +30,22 @@ let rec match_exprlist_args loc lex args env =
 	  if ( isSubtypeOf env atype te )
 	  then match_exprlist_args loc l1 l2 env
 	  else not_subtype (stringOf te) (stringOf atype) loc
-	| None -> 
-	  if ( isSubtypeOf env atype (fromString "Null") )
-	  then match_exprlist_args loc l1 l2 env
-	  else not_subtype "Null" (stringOf atype) loc
+	| None -> typing_error loc
 
-(* Typage d'une expression *)
+(* Typage d'une expression 
+Pour chaque expression, on commence par typer les sous-expressions pour typer l'expression résultante *)
 and check_expr e env =
   match e.edesc with 
+
     | New s -> 
       if (not (isClass env s)) then unknown_type s e.eloc;
       e.etype <- Some (fromString s)
+
     | Seq (e1,e2) -> 
       check_expr e1 env;
       check_expr e2 env;
       e.etype <- e2.etype
+
     | Call (e0,fname,args) -> 
       check_expr e0 env;
       begin match e0.etype with 
@@ -57,13 +60,14 @@ and check_expr e env =
 	    with 
 		Not_found -> unknown_meth fname (stringOf t) e.eloc
 	  end
-	| None -> unknown_meth fname "Null" e.eloc
+	| None -> typing_error e.eloc
       end
+
     | If (e0, e1, e2) ->
       check_expr e0 env;
       begin match e0.etype with 
 	| Some t -> if ( (stringOf t) <> "Boolean") then incorrect_type "Boolean" (stringOf t) e.eloc;
-	| _ -> incorrect_type "Boolean" "Null" e.eloc;
+	| None -> typing_error e.eloc
       end;
       check_expr e1 env;
       begin match e2 with
@@ -71,6 +75,7 @@ and check_expr e env =
 	| None ->  ()
       end;
       e.etype <- e1.etype
+
     | Val v -> 
       begin match v with
 	| String s -> e.etype <- Some (fromString "String")
@@ -78,11 +83,14 @@ and check_expr e env =
 	| Boolean b -> e.etype <- Some (fromString "Boolean")
 	| Null -> e.etype <- Some (fromString "Null")
       end
+
     | Var s -> 
       begin
       try e.etype <- Some (findVar env s)
       with Not_found -> unknown_var s e.eloc
       end
+
+    (* Le type d'une assignation est Null *)
     | Assign (s,e0) -> 
       begin
 	try let var_type = (findVar env s) in
@@ -91,13 +99,12 @@ and check_expr e env =
 	      | Some expr_type ->
 		if (not (isSubtypeOf env var_type expr_type)) 
 		then not_subtype (stringOf expr_type) (stringOf var_type) e.eloc
-	      | None ->
-		let expr_type = (fromString "Null") in
-		if (not (isSubtypeOf env var_type expr_type)) 
-		then not_subtype (stringOf expr_type) (stringOf var_type) e.eloc
+                else e.etype <- Some (fromString "Null")
+	      | None -> typing_error e.eloc
 	    end
 	with Not_found -> unknown_var s e.eloc
       end
+
     | Define (var_name,var_type,e0,e1) ->
       if (not(isClass env var_type)) then unknown_type var_type e.eloc;
       check_expr e0 env;
@@ -105,15 +112,13 @@ and check_expr e env =
 	| Some expr_type ->
 	  if (not (isSubtypeOf env (fromString var_type) expr_type)) 
 	  then not_subtype (stringOf expr_type) var_type e.eloc
-	| None ->
-	  let expr_type = (fromString "Null") in
-	  if (not (isSubtypeOf env (fromString var_type) expr_type)) 
-	  then not_subtype (stringOf expr_type) var_type e.eloc
+	| None -> typing_error e.eloc
       end;
       (* New variable with the same name hide the old ones *)
       let new_env = addVar env var_name (fromString var_type) in
       check_expr e1 new_env;
       e.etype <- e1.etype
+
     | Cast (t,e0) -> 
       if (not(isClass env t)) then unknown_type t e.eloc;
       let new_t = (fromString t) in
@@ -123,18 +128,15 @@ and check_expr e env =
 	  if ( ( isSubtypeOf env new_t expr_type) || ( isSubtypeOf env expr_type new_t ) )
 	  then e.etype <- Some new_t
 	  else not_castable (stringOf expr_type) (stringOf new_t) e.eloc
-	| None -> 
-	  let expr_type = (fromString "Null") in
-	  if ( ( isSubtypeOf env new_t expr_type) || ( isSubtypeOf env expr_type new_t ) )
-	  then e.etype <- Some new_t
-	  else not_castable (stringOf expr_type) (stringOf new_t) e.eloc
+	| None -> typing_error e.eloc
       end
+
     | Instanceof (e0,t) -> 
       if (not(isClass env t)) then unknown_type t e.eloc;
       check_expr e0 env;
       e.etype <- Some (fromString "Boolean")
 
-(* Trouve tous les types définiés dans le fichiers *)
+(* Trouve tous les types définis dans le fichiers *)
 let rec find_types type_asts env = 
   match type_asts with
     | [] -> env
@@ -210,7 +212,7 @@ let rec check_attributes c attrs env =
         | Some e -> 
           check_expr e env;
           match e.etype with
-            | None -> incorrect_type a1.atype "Null" a1.aloc
+            | None -> typing_error e.eloc
             | Some t -> 
               if not (isSubtypeOf env (fromString a1.atype) t)
               then  not_subtype (stringOf t) a1.atype a1.aloc;
@@ -242,15 +244,11 @@ let rec check_funs_def c funs env =
       let new_env = addVar env_with_args "this" (fromString c) in
       check_expr f1.mbody new_env;
       match f1.mbody.etype with
-        | None -> 
-          if not (isSubtypeOf env (fromString f1.mreturntype) (fromString "Null"))
-          then  not_subtype "Null" f1.mreturntype f1.mloc;
-          check_funs_def c others env
+        | None -> typing_error f1.mloc
         | Some t -> 
           if not (isSubtypeOf env (fromString f1.mreturntype) t)
           then  not_subtype (stringOf t) f1.mreturntype f1.mloc;
           check_funs_def c others env
-      
       
 (* Vérifie l'intérieur des classes *)
 let rec examine_types type_asts env =

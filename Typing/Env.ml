@@ -1,14 +1,19 @@
+(* Environnement de typage *)
+
 open TypeError
 
 exception ClassAlreadyPresent of string
 exception MethodAlreadyPresent of string
 
+(* Environnement des variables *)
 type tEnv_v = (string, Type.t) Hashtbl.t 
 
+(* Environnement des classes *)
 and tEnv_c = (string, tClasse) Hashtbl.t 
 
 and t_funs = (string, tFun) Hashtbl.t
 
+(* Environnement *)
 and tEnv = {
 
   env_v : tEnv_v ;
@@ -18,6 +23,7 @@ and tEnv = {
 
 and tArg = Type.t * string
 
+(* Representation d'une fonction pour le typage *)
 and tFun = {
 
   fargs : tArg list ;
@@ -25,6 +31,7 @@ and tFun = {
 
 }
 
+(* Representation d'une classe pour le typage *)
 and tClasse = {
 
   csuper : Type.t ;
@@ -86,16 +93,13 @@ let initialEnv () =
   Hashtbl.add result.env_c "Null" makeClass ;
   result
 
+(* Recherches dans l'environnement *)
+
 let findVar env = Hashtbl.find (env.env_v)
 
 let isVar env v =
   try findVar env v; true
   with Not_found -> false
-
-let rec findInList l a = 
-  match l with
-    | [] -> false
-    | (h::t) -> if (h = a) then true else findInList t a
 
 let findClass env = Hashtbl.find (env.env_c) 
 
@@ -106,6 +110,8 @@ let isClass env c =
 let findFun env cname =
   Hashtbl.find (Hashtbl.find(env.env_c) cname).funs
   
+(* Recherche une methode d'une classe, et si on ne la trouve pas,
+continue de la chercher dans le parent de la classe *)
 let rec findFun_rec env cname f =
   try
     Hashtbl.find (Hashtbl.find(env.env_c) cname).funs f
@@ -125,6 +131,8 @@ let isFun env c f =
 let isFun_rec env c f =
   try findFun_rec env c f; true
   with Not_found -> false
+
+(* Ajouts à l'environnement *)
 
 let addVar env n t = 
   let new_v = Hashtbl.copy env.env_v in

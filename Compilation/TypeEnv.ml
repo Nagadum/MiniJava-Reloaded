@@ -66,6 +66,7 @@ let findFun env = Hashtbl.find (env.env_f)
 let initAttr o f aname aexpr =
   Hashtbl.add o.attrs aname (f aexpr)
 
+(* Ajoute les attributs à l'objet *)
 let rec addAttrs o env f c =
   Hashtbl.iter (initAttr o f) c.cattrs;
   try
@@ -82,9 +83,9 @@ let makeObject cname env p f =
     } in
   Hashtbl.add o.attrs "this" (AST.Reference(p)) ;
   addAttrs o env f c ;
-  (*Hashtbl.iter (initAttr o f) c.cattrs ;*)
   o
 
+(* Definit le constructeur d'une classe donnée *)
 let makeConst cname =
   makeObject cname
 
