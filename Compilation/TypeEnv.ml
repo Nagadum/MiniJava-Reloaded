@@ -1,3 +1,5 @@
+exception TypeEnvError of string;;
+
 (* Definition de l'environnement d'execution *)
 
 (* Tas *)
@@ -222,3 +224,11 @@ let addAttrsToEnv env p =
   let new_v = Hashtbl.copy (env.env_v) in
   Hashtbl.iter (Hashtbl.add new_v) o.attrs;
   makeEnv env.env_t env.env_c new_v env.env_f env.next
+
+let setAttr env name value =
+  match (findVar env "this") with
+    | AST.Reference p -> 
+      let o = findObj env p in
+      Hashtbl.replace o.attrs name value ;
+      Hashtbl.replace env.env_v name value
+    | _ -> raise (TypeEnvError("'this' is not a reference"))

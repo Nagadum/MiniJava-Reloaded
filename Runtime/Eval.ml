@@ -133,7 +133,9 @@ and eval_expr e env =
         | Reference a -> Reference(a)
 	| _ -> Null
     end
-    | Assign(varname, varvalue) -> (* TODO *) Null
+    | Assign(varname, varvalue) -> 
+      TypeEnv.setAttr env varname (eval_expr varvalue env) ;
+      Null
     | Cast(new_type, e) ->
       begin match (eval_expr e env) with
         | Int a -> Int(a)
