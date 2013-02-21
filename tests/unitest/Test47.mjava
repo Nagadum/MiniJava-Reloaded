@@ -1,0 +1,18 @@
+// Testing dynamic resolution, Expected : 12
+
+class A {
+
+      Int x = 10;
+
+      Int setX(Int newX) {
+          x = newX ;
+          x
+      }
+
+}
+
+class B extends A {}
+
+B b = new B in {
+    b.setX(12)
+}

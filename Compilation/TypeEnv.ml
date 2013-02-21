@@ -64,6 +64,13 @@ let findFun env = Hashtbl.find (env.env_f)
 let initAttr o f aname aexpr =
   Hashtbl.add o.attrs aname (f aexpr)
 
+let rec addAttrs o env f c =
+  Hashtbl.iter (initAttr o f) c.cattrs;
+  try
+    let cparent = (findClass env c.super) in
+    addAttrs o env f cparent
+  with Not_found -> ()
+
 let makeObject cname env p f =
   let c = findClass env cname in
   let o = 
@@ -72,7 +79,8 @@ let makeObject cname env p f =
       attrs = (Hashtbl.create 17 : (string, AST.value) Hashtbl.t)
     } in
   Hashtbl.add o.attrs "this" (AST.Reference(p)) ;
-  Hashtbl.iter (initAttr o f) c.cattrs ;
+  addAttrs o env f c ;
+  (*Hashtbl.iter (initAttr o f) c.cattrs ;*)
   o
 
 let makeConst cname =
