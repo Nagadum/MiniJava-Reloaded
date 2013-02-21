@@ -80,10 +80,10 @@ let makeClassBool () =
 let initialEnv () = 
   let result = makeEnv (Hashtbl.create 17 : tEnv_v) (Hashtbl.create 17 : tEnv_c) in
   Hashtbl.add result.env_c "Object" (makeClassObject());
-  Hashtbl.add result.env_c "None" makeClass;
   Hashtbl.add result.env_c "Int" (makeClassInt());
   Hashtbl.add result.env_c "Boolean" (makeClassBool());
   Hashtbl.add result.env_c "String" makeClass;
+  Hashtbl.add result.env_c "Null" makeClass ;
   result
 
 let findVar env = Hashtbl.find (env.env_v)

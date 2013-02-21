@@ -29,9 +29,9 @@ let rec match_exprlist_args loc lex args env =
 	  then match_exprlist_args loc l1 l2 env
 	  else not_subtype (stringOf te) (stringOf atype) loc
 	| None -> 
-	  if ( isSubtypeOf env atype (fromString "None") )
+	  if ( isSubtypeOf env atype (fromString "Null") )
 	  then match_exprlist_args loc l1 l2 env
-	  else not_subtype "None" (stringOf atype) loc
+	  else not_subtype "Null" (stringOf atype) loc
 
 (* Typage d'une expression *)
 and check_expr e env =
@@ -57,13 +57,13 @@ and check_expr e env =
 	    with 
 		Not_found -> unknown_meth fname (stringOf t) e.eloc
 	  end
-	| None -> unknown_meth fname "None" e.eloc
+	| None -> unknown_meth fname "Null" e.eloc
       end
     | If (e0, e1, e2) ->
       check_expr e0 env;
       begin match e0.etype with 
 	| Some t -> if ( (stringOf t) <> "Boolean") then incorrect_type "Boolean" (stringOf t) e.eloc;
-	| _ -> incorrect_type "Boolean" "None" e.eloc;
+	| _ -> incorrect_type "Boolean" "Null" e.eloc;
       end;
       check_expr e1 env;
       begin match e2 with
@@ -92,7 +92,7 @@ and check_expr e env =
 		if (not (isSubtypeOf env var_type expr_type)) 
 		then not_subtype (stringOf expr_type) (stringOf var_type) e.eloc
 	      | None ->
-		let expr_type = (fromString "None") in
+		let expr_type = (fromString "Null") in
 		if (not (isSubtypeOf env var_type expr_type)) 
 		then not_subtype (stringOf expr_type) (stringOf var_type) e.eloc
 	    end
@@ -106,7 +106,7 @@ and check_expr e env =
 	  if (not (isSubtypeOf env (fromString var_type) expr_type)) 
 	  then not_subtype (stringOf expr_type) var_type e.eloc
 	| None ->
-	  let expr_type = (fromString "None") in
+	  let expr_type = (fromString "Null") in
 	  if (not (isSubtypeOf env (fromString var_type) expr_type)) 
 	  then not_subtype (stringOf expr_type) var_type e.eloc
       end;
@@ -124,7 +124,7 @@ and check_expr e env =
 	  then e.etype <- Some new_t
 	  else not_castable (stringOf expr_type) (stringOf new_t) e.eloc
 	| None -> 
-	  let expr_type = (fromString "None") in
+	  let expr_type = (fromString "Null") in
 	  if ( ( isSubtypeOf env new_t expr_type) || ( isSubtypeOf env expr_type new_t ) )
 	  then e.etype <- Some new_t
 	  else not_castable (stringOf expr_type) (stringOf new_t) e.eloc
@@ -210,7 +210,7 @@ let rec check_attributes c attrs env =
         | Some e -> 
           check_expr e env;
           match e.etype with
-            | None -> incorrect_type a1.atype "None" a1.aloc
+            | None -> incorrect_type a1.atype "Null" a1.aloc
             | Some t -> 
               if not (isSubtypeOf env (fromString a1.atype) t)
               then  not_subtype (stringOf t) a1.atype a1.aloc;
@@ -242,7 +242,10 @@ let rec check_funs_def c funs env =
       let new_env = addVar env_with_args "this" (fromString c) in
       check_expr f1.mbody new_env;
       match f1.mbody.etype with
-        | None -> incorrect_type f1.mreturntype "None" f1.mloc
+        | None -> 
+          if not (isSubtypeOf env (fromString f1.mreturntype) (fromString "Null"))
+          then  not_subtype "Null" f1.mreturntype f1.mloc;
+          check_funs_def c others env
         | Some t -> 
           if not (isSubtypeOf env (fromString f1.mreturntype) t)
           then  not_subtype (stringOf t) f1.mreturntype f1.mloc;

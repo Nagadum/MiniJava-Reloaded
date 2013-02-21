@@ -1,0 +1,17 @@
+// Testing setting / getting attributes. Expected : 10
+
+class A {
+      Int x = 0;
+      Null setX(Int newX) {
+           x = newX
+      }
+
+      Int getX() {
+          x
+      }
+}
+
+A a = new A in {
+  a.setX(10);
+  a.getX()
+}
