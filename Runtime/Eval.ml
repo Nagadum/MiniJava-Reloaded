@@ -121,10 +121,16 @@ and eval_expr e env =
         | _ -> Null
       end
 
-    | If(cond, then_exp, Some else_exp) -> 
+    (*| If(cond, then_exp, Some else_exp) -> 
       begin match((eval_expr cond env), (eval_expr then_exp env), (eval_expr else_exp env)) with
         | ( Boolean true, e0, _ ) -> e0
         | ( Boolean false, _, e0) -> e0
+        | _ -> Null
+      end*)
+    | If(cond, then_exp, Some else_exp) -> 
+      begin match (eval_expr cond env) with
+        | Boolean true -> (eval_expr then_exp env)
+        | Boolean false -> (eval_expr else_exp env)
         | _ -> Null
       end
 
