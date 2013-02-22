@@ -61,6 +61,7 @@ let string_of_value = function
   | Boolean b -> string_of_bool b
   | Int i -> string_of_int i
   | Null -> "null"
+  | Reference p -> string_of_int p
 
 let rec string_of_expression_desc = function
   | New t -> 

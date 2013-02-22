@@ -159,6 +159,11 @@ let printFunction fid f =
   print_endline "Args: ";
   List.iter print_endline f.fargs
 
+let printObj p o =
+  print_string("---\nObject : ");
+  print_int p ;
+  print_endline("\nClass : " ^ o.myClass)
+
 let printEnv env =
   print_endline "----Classes----";
   Hashtbl.iter printClass env.env_c;
@@ -169,10 +174,10 @@ let printEnv env =
 
 let newObject env f cname =
   let id = env.next in
+  env.next <- (id + 1);
   let c = findClass env cname in
   let obj = c.const env id f in
   Hashtbl.add env.env_t id obj;
-  env.next <- (id + 1);
   id
 
 (* Gestion du polymorphisme *)

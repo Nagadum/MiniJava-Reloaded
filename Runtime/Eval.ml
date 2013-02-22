@@ -104,29 +104,23 @@ and eval_expr e env =
           let f = TypeEnv.getFun env cname fname in
           let args_value = eval_expr_list args env in
           let newEnv = callEnv env a f.fargs args_value in
-          eval_expr f.fbody newEnv
+          let result = eval_expr f.fbody newEnv in
+          env.next <- newEnv.next ;
+          result
         | _ -> Null
     end
 
     | New s -> Reference(TypeEnv.newObject env (eval1 env) s)
 
-    | Seq(e1, e2) -> begin match((eval_expr e1 env), (eval_expr e2 env)) with
-        | (_, result) -> result
-    end
+    | Seq(e1, e2) -> (eval_expr e1 env); (eval_expr e2 env)
 
     | If(cond, then_exp, None) -> 
-      begin match((eval_expr cond env), (eval_expr then_exp env)) with
-        | ( Boolean true, e0 ) -> e0
-        | ( Boolean false, _ ) -> Null
+      begin match (eval_expr cond env) with
+        | ( Boolean true) -> (eval_expr then_exp env)
+        | ( Boolean false) -> Null
         | _ -> Null
       end
 
-    (*| If(cond, then_exp, Some else_exp) -> 
-      begin match((eval_expr cond env), (eval_expr then_exp env), (eval_expr else_exp env)) with
-        | ( Boolean true, e0, _ ) -> e0
-        | ( Boolean false, _, e0) -> e0
-        | _ -> Null
-      end*)
     | If(cond, then_exp, Some else_exp) -> 
       begin match (eval_expr cond env) with
         | Boolean true -> (eval_expr then_exp env)
@@ -135,7 +129,8 @@ and eval_expr e env =
       end
 
     | Define (varname, vartype, varvalue, e) -> 
-	let newenv = TypeEnv.addVar env varname (eval_expr varvalue env) in
+      let evalue = (eval_expr varvalue env) in
+      let newenv = TypeEnv.addVar env varname evalue in
 	  eval_expr e newenv
 
     | Var v -> (findVar env)  v
