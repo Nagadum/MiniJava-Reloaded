@@ -1,0 +1,63 @@
+
+class Tuple1  {
+      Int x1 = 0;
+
+      Null setTuple1(Int a) {
+           x1 = a
+      }
+
+      Int getX1() {
+          x1
+      }
+
+      Null addTuple1(Tuple1 t) {
+           x1 = x1 + t.getX1()
+      }
+}
+
+class Tuple2 extends Tuple1{
+      Int x2 = 0;
+
+      Null setTuple2(Int a1, Int a2) {
+           this.setTuple1(a1) ;
+           x2 = a2
+      }
+
+      Int getX2() {
+          x2
+      }
+
+      Null addTuple2(Tuple2 t) {
+           this.addTuple1(t) ; 
+           x2 = x2 + t.getX2()
+      }
+
+}
+
+class Tuple3 extends Tuple2{
+      Int x3 = 0;
+
+      Null setTuple3(Int a1, Int a2, Int a3) {
+           this.setTuple2(a1, a2) ;
+           x3 = a3
+      }
+
+      Int getX3() {
+          x3
+      }
+
+      Null addTuple3(Tuple3 t) {
+           this.addTuple2(t) ; 
+           x3 = x3 + t.getX3()
+      }
+
+}
+
+Tuple3 t1 = new Tuple3 in {
+    t1.setTuple3(1,2,3) ;
+    Tuple3 t2 = new Tuple3 in {
+        t2.setTuple3(10,20,30) ;
+        t1.addTuple3(t2) ;
+        t1.getX2()
+    }
+}

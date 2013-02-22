@@ -1,0 +1,93 @@
+class StackElement {
+
+      Int value = 0;
+      StackElement next;
+      Boolean last = true;
+
+      Null setValue(Int v) {
+           value = v
+      }
+
+      Int getValue() {
+          value
+      }
+
+      Null setLast(Boolean b) {
+           last = b
+      } 
+
+      Boolean isLast() {
+           last
+      }
+
+      Null setNext(StackElement e) {
+           next = e
+      }
+
+      StackElement getNext() {
+           next
+      }
+
+      Int length() {
+          if (last) {
+             1
+          } else {
+             1 + next.length()
+          }
+      }
+
+}
+
+class Stack {
+
+      StackElement first;
+      Boolean empty = true;
+
+      Null push(Int a) {
+           StackElement e = new StackElement in {
+               e.setValue(a) ;
+               if (empty) {
+                  e.setLast(true) ;
+                  empty = false
+               } else {
+                 e.setLast(false) ;
+                 e.setNext(first) 
+               } ;
+               first = e
+           }
+      }
+
+      Int peek() {
+          first.getValue()
+      }
+
+      Int pop() {
+          StackElement e = first in {
+              if (e.isLast()) {
+                 empty = true
+              } else {
+                 first = e.getNext()
+              } ;
+              e.getValue()
+          }
+      }
+
+      Int length() {
+          if (empty) {
+             0
+          } else {
+             first.length()
+          }
+      }
+      
+}
+
+Stack l = new Stack in {
+      l.push(1) ;
+      l.push(2) ;
+      l.push(3) ;
+      l.push(4) ;
+      l.pop() ;
+      l.length()
+} 
+

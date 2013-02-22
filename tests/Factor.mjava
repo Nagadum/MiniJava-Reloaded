@@ -1,0 +1,11 @@
+class Factor {
+      Int run(Int a) {
+          if (a <= 0) {
+             1
+          } else {
+            a * this.run(a-1)
+          }
+      }
+}
+
+(new Factor).run(10)
